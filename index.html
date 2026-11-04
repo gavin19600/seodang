@@ -180,9 +180,8 @@ a.act{text-decoration:none;display:inline-block}
   </div>
   <div class="veil entry" id="entry">
     <section class="panel" role="dialog" aria-modal="true" aria-labelledby="enTitle">
-      <header><div><div class="ttl" id="enTitle">한문김선생의 온라인서당</div><div class="sub">친구들에게 보일 별명과 모습을 골라요. 진짜 이름은 안 써도 돼요.</div></div></header>
+      <header><div><div class="ttl" id="enTitle">한문김선생의 온라인서당</div><div class="sub">친구들에게 보일 모습과 이름표 색을 골라요. 이름은 모습에 맞춰 저절로 지어져요.</div></div></header>
       <div class="pb">
-        <div class="enrow"><label for="nick"><b>별명</b></label><div class="row" style="flex-wrap:nowrap"><input type="text" id="nick" maxlength="8" autocomplete="off" style="flex:1;min-width:0"><button class="pbtn" id="rollNick" type="button">다른 별명</button></div></div>
         <div class="enrow"><b>모습</b><div class="emogrid" id="emoGrid" role="radiogroup" aria-label="모습"></div></div>
         <div class="enrow"><b>이름표 색</b><div class="colgrid" id="colGrid" role="radiogroup" aria-label="이름표 색"></div></div>
         <div class="preview"><span class="tag" id="tagPrev"></span><span class="note" id="gradePrev"></span></div>
@@ -956,22 +955,16 @@ function drawTag(){const c=tagCtx;c.clearRect(0,0,512,128);c.font="bold 50px 'Go
   const w=Math.min(500,c.measureText(label).width+56);const x=(512-w)/2;c.fillStyle=S.color||COLORS[3];c.beginPath();if(c.roundRect)c.roundRect(x,22,w,84,42);else c.rect(x,22,w,84);c.fill();
   c.fillStyle="#fff";c.textAlign="center";c.textBaseline="middle";c.fillText(label,256,66,w-30);tagTex.needsUpdate=true;nameTag.visible=true;}
 // 입장 창
-let pick={nick:S.nick||"",emoji:S.emoji||EMOJIS[Math.floor(Math.random()*EMOJIS.length)],color:S.color||COLORS[Math.floor(Math.random()*COLORS.length)]};
-const randNick=()=>ADJ[Math.floor(Math.random()*ADJ.length)]+" "+NOUN[pick.emoji];
-if(!pick.nick)pick.nick=randNick();
-$("nick").value=pick.nick;
+let pick={adj:S.adj||ADJ[Math.floor(Math.random()*ADJ.length)],emoji:S.emoji||EMOJIS[Math.floor(Math.random()*EMOJIS.length)],color:S.color||COLORS[Math.floor(Math.random()*COLORS.length)]};
+const nickOf=()=>pick.adj+" "+NOUN[pick.emoji];
 $("emoGrid").innerHTML=EMOJIS.map(e=>'<button class="emo" role="radio" aria-checked="'+(e===pick.emoji)+'" aria-label="'+NOUN[e]+'" data-e="'+e+'">'+e+'</button>').join("");
 $("colGrid").innerHTML=COLORS.map((c,i)=>'<button class="col" role="radio" aria-checked="'+(c===pick.color)+'" aria-label="색 '+(i+1)+'" data-c="'+c+'" style="background:'+c+'"></button>').join("");
-function prev(){const t=$("tagPrev");t.style.background=pick.color;t.textContent=pick.emoji+" "+($("nick").value.trim()||"학동");$("gradePrev").textContent="지금 급수 "+GRADES[S.grade].k+" · 익힌 편 "+doneCount()+"/6";}
-$("emoGrid").addEventListener("click",e=>{const b=e.target.closest("[data-e]");if(!b)return;const was=$("nick").value.trim();const auto=!S.nick&&ADJ.some(a=>was===a+" "+NOUN[pick.emoji]);
-  pick.emoji=b.dataset.e;$("emoGrid").querySelectorAll(".emo").forEach(x=>x.setAttribute("aria-checked",String(x===b)));if(auto)$("nick").value=randNick();prev();});
+function prev(){const t=$("tagPrev");t.style.background=pick.color;t.textContent=pick.emoji+" "+nickOf();$("gradePrev").textContent="지금 급수 "+GRADES[S.grade].k+" · 익힌 편 "+doneCount()+"/6";}
+$("emoGrid").addEventListener("click",e=>{const b=e.target.closest("[data-e]");if(!b)return;pick.emoji=b.dataset.e;$("emoGrid").querySelectorAll(".emo").forEach(x=>x.setAttribute("aria-checked",String(x===b)));prev();});
 $("colGrid").addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(!b)return;pick.color=b.dataset.c;$("colGrid").querySelectorAll(".col").forEach(x=>x.setAttribute("aria-checked",String(x===b)));prev();});
-$("nick").addEventListener("input",prev);
-$("nick").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();enter();}});
-$("rollNick").addEventListener("click",()=>{$("nick").value=randNick();prev();});
 const BADW=/(씨발|시발|ㅅㅂ|병신|ㅂㅅ|좆|존나|개새|새끼|꺼져|죽어|섹스|느금)/;
-function enter(){const n=$("nick").value.trim().slice(0,8);if(!n){$("nick").focus();return;}if(BADW.test(n)){toast("다른 별명을 써 주거라","친구들이 함께 보는 이름이에요");$("nick").focus();return;}
-  S.nick=n;S.emoji=pick.emoji;S.color=pick.color;save();drawTag();$("entry").hidden=true;panelOpen=false;
+function enter(){const n=nickOf().slice(0,8);
+  S.adj=pick.adj;S.nick=n;S.emoji=pick.emoji;S.color=pick.color;save();drawTag();$("entry").hidden=true;panelOpen=false;
   toast("어서 오너라, "+n+"!","홍살문을 지나 외삼문 오른쪽 문으로 들어오너라");startMulti();sendPresence(true);}
 $("enterBtn").addEventListener("click",enter);
 panelOpen=true;prev();(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{if(S.nick)drawTag();});
@@ -983,8 +976,8 @@ setTimeout(()=>{try{$("enterBtn").focus();}catch(e){}},50);
   setTimeout(()=>toast("놀이를 마치고 돌아왔구나, "+S.nick+"!","서당을 계속 둘러보거라"),400);
   try{history.replaceState(null,"",location.pathname);}catch(e){}})();
 // 서첩에 별명 바꾸기
-const _album=ROOMS.album;ROOMS.album=function(){_album();const d=document.createElement("div");d.className="row";d.innerHTML='<button class="pbtn">별명과 모습 바꾸기</button>';
-  d.firstChild.onclick=()=>{veil.hidden=true;$("entry").hidden=false;$("nick").value=S.nick||randNick();prev();$("nick").focus();};pBody.prepend(d);};
+const _album=ROOMS.album;ROOMS.album=function(){_album();const d=document.createElement("div");d.className="row";d.innerHTML='<button class="pbtn">모습과 이름표 색 바꾸기</button>';
+  d.firstChild.onclick=()=>{veil.hidden=true;$("entry").hidden=false;prev();$("enterBtn").focus();};pBody.prepend(d);};
 
 /* ================= 함께 접속 (공개 사이트에서만: Firebase 연결층이 있을 때) ================= */
 const peerMap=new Map();let roomApi=null,lastPres=0,lastPresKey="",jumpCount=0;
