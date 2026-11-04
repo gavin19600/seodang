@@ -55,7 +55,7 @@ body{background:var(--sky);color:var(--ink);font-family:var(--body);overflow:hid
 button{font:inherit}
 .chip.btn{cursor:pointer}
 .help{bottom:calc(10px + env(safe-area-inset-bottom,0px));right:max(16px,env(safe-area-inset-right,0px));font-size:12px;background:rgba(246,239,225,.82);padding:4px 10px;border-radius:2px;pointer-events:none}
-.mini{top:calc(66px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px));width:120px;height:218px;border:1px solid var(--edge);border-radius:3px;box-shadow:0 2px 10px rgba(60,40,20,.18);cursor:pointer}
+.mini{bottom:calc(16px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));width:120px;height:218px;border:1px solid var(--edge);border-radius:3px;box-shadow:0 2px 10px rgba(60,40,20,.18);cursor:pointer}
 @media (max-width:640px){.mini{display:none}}
 .act{left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--juchil);color:#fbefe3;border:0;border-radius:3px;
   padding:12px 22px;font-size:16px;font-weight:700;box-shadow:0 6px 18px rgba(120,30,20,.35);cursor:pointer;white-space:nowrap}
@@ -612,7 +612,7 @@ path(0,22.6,40,1.8);
 
 /* 하마비 옆에 기다리는 말 */
 let horseNod=0;
-(function(){const x=-5.4,z=58.6,g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=Math.PI*0.5;scene.add(g);
+(function(){const x=-8.7,z=56.2,g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=0.95;scene.add(g);
   const coat=M(0x7b4a2a),dark=M(0x2b1d14),hoof=M(0x1f1a17),white=M(0xf3efe6);
   const body=mesh(new THREE.CylinderGeometry(0.42,0.4,1.7,14),coat,0,1.25,0,g);body.rotation.x=Math.PI/2;body.scale.set(1,1,1.08);
   mesh(new THREE.SphereGeometry(0.44,14,10),coat,0,1.27,0.82,g).scale.set(1,1.02,0.8);
@@ -644,9 +644,9 @@ let horseNod=0;
   const post=mesh(new THREE.CylinderGeometry(0.08,0.1,1.3,8),M(0x6b4a2c),0.95,0.65,1.7,g);
   const rein=mesh(new THREE.CylinderGeometry(0.012,0.012,1.15,4),M(0x5a2a1a),0.5,1.05,1.55,g);rein.rotation.z=1.15;rein.rotation.y=-0.5;
   mesh(new THREE.CircleGeometry(0.5,16),M(0x9c8f63,{roughness:1}),0.3,0.02,1.9,g).rotation.x=-Math.PI/2;
-  colliders.push({x,z,r:1.25});colliders.push({x:x+1.7,z:z-0.95,r:0.3});
+  colliders.push({x,z,r:1.25});{const r=0.95;colliders.push({x:x+0.95*Math.cos(r)+1.7*Math.sin(r),z:z-0.95*Math.sin(r)+1.7*Math.cos(r),r:0.3});}
   mapItems.push({k:"c",x,z,r:0.9,c:"#7b4a2a"});
-  spots.push({id:"horse",name:"하마비 옆 말",act:"말 쓰다듬기",x:x+0.3,z:z+1.9});
+  spots.push({id:"horse",name:"하마비 옆 말",act:"말 쓰다듬기",x:x+0.4,z:z+2.4});
   let shift=0;
   gameAnim.push(t=>{const n=horseNod>0?Math.sin((1-horseNod)*Math.PI*4)*0.35:0;
     neck.rotation.x=Math.sin(t*0.7)*0.06+(Math.sin(t*0.23)>0.85?0.35:0)+n;head.rotation.x=Math.sin(t*1.1)*0.05;
@@ -1117,7 +1117,7 @@ let near=null;
 function resize(){const w=canvas.clientWidth,hgt=canvas.clientHeight;renderer.setSize(w,hgt,false);camera.aspect=w/hgt;camera.fov=w/hgt<0.8?64:50;camera.updateProjectionMatrix();}
 addEventListener("resize",resize);resize();hud();
 const clock=new THREE.Clock();const tmp=new THREE.Vector3();let walkT=0;
-const ZONES=[{n:"순간이동 문 앞",x:7.6,z:61.4,r:1.8},{n:"마음정비소 푯말 앞",x:4.3,z:62.4,r:2.2},{n:"하마비 옆 말",x:-5.2,z:60.4,r:2},{n:"홍살문 앞",x:0,z:57,r:7},{n:"외삼문",x:0,z:46,r:3.5},{n:"은행나무 아래",x:-6,z:1.5,r:5},{n:"명륜당 앞",x:0,z:-4,r:4.5},{n:"동재 앞",x:9.5,z:6,r:4},{n:"서재 앞",x:-9.5,z:6,r:4},{n:"비천당 앞",x:-11.5,z:30,r:4.5},{n:"다국어 반 앞",x:14,z:30,r:4},{n:"한자 놀이 마당",x:12,z:20.5,r:8.5},{n:"한자 놀이 마당",x:-10,z:20.5,r:7},{n:"반수 연못가",x:10,z:41,r:5.5},{n:"놀이 마당",x:-9,z:40,r:4},{n:"훈장님 방 앞",x:-15,z:-12,r:4},{n:"존경각 앞",x:15,z:-12,r:4},{n:"내삼문",x:0,z:-25,r:3},{n:"대성전 뜰",x:0,z:-30,r:6}];
+const ZONES=[{n:"순간이동 문 앞",x:7.6,z:61.4,r:1.8},{n:"마음정비소 푯말 앞",x:4.3,z:62.4,r:2.2},{n:"하마비 옆 말",x:-8.3,z:58.6,r:2},{n:"홍살문 앞",x:0,z:57,r:7},{n:"외삼문",x:0,z:46,r:3.5},{n:"은행나무 아래",x:-6,z:1.5,r:5},{n:"명륜당 앞",x:0,z:-4,r:4.5},{n:"동재 앞",x:9.5,z:6,r:4},{n:"서재 앞",x:-9.5,z:6,r:4},{n:"비천당 앞",x:-11.5,z:30,r:4.5},{n:"다국어 반 앞",x:14,z:30,r:4},{n:"한자 놀이 마당",x:12,z:20.5,r:8.5},{n:"한자 놀이 마당",x:-10,z:20.5,r:7},{n:"반수 연못가",x:10,z:41,r:5.5},{n:"놀이 마당",x:-9,z:40,r:4},{n:"훈장님 방 앞",x:-15,z:-12,r:4},{n:"존경각 앞",x:15,z:-12,r:4},{n:"내삼문",x:0,z:-25,r:3},{n:"대성전 뜰",x:0,z:-30,r:6}];
 function zoneName(p){for(const z of ZONES)if(Math.hypot(p.x-z.x,p.z-z.z)<z.r)return z.n;if(p.z>46.6)return "향교 밖";if(p.z<-22)return "제향 구역";return "강학 구역";}
 let lastZone="";
 function loop(now){
@@ -1164,7 +1164,7 @@ function loop(now){
   camera.position.lerp(tmp,Math.min(1,dt*6));camera.lookAt(tx,ty+1.3,tz);
   sun.position.set(tx+14,22,tz+10);sun.target.position.set(tx,0,tz);sun.target.updateMatrixWorld();
   // 장식 움직임
-  if(!reduce){leaves.forEach(l=>{const u=l.userData;l.position.y-=u.vy*dt;l.position.x+=Math.sin(t*u.sp+u.ph)*0.4*dt;l.rotation.x+=dt*u.sp;l.rotation.z+=dt*0.7;if(l.position.y<heightAt(l.position.x,l.position.z)+0.02||Math.abs(l.position.x-player.position.x)>20||Math.abs(l.position.z-player.position.z)>20)resetLeaf(l,false);});
+  if(!reduce){leaves.forEach(l=>{const u=l.userData;l.position.y-=u.vy*dt;l.position.x+=Math.sin(t*u.sp+u.ph)*0.4*dt;l.rotation.x+=dt*u.sp;l.rotation.z+=dt*0.7;l.visible=l.position.distanceToSquared(camera.position)>9;if(l.position.y<heightAt(l.position.x,l.position.z)+0.02||Math.abs(l.position.x-player.position.x)>20||Math.abs(l.position.z-player.position.z)>20)resetLeaf(l,false);});
     friends.forEach((f,i)=>{f.position.y=f.userData.by+Math.abs(Math.sin(t*2+i))*0.02;});npc.rotation.z=Math.sin(t*0.8)*0.01;}
   for(let i=confetti.length-1;i>=0;i--){const m=confetti[i],u=m.userData;u.v.y-=6*dt;u.v.multiplyScalar(0.985);m.position.addScaledVector(u.v,dt);m.rotation.x+=u.r.x*dt;m.rotation.y+=u.r.y*dt;u.life-=dt;
     if(m.position.y<0.05){m.position.y=0.05;u.v.set(0,0,0);u.r.set(0,0,0);}if(u.life<=0){scene.remove(m);confetti.splice(i,1);}}
