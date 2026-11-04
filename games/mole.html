@@ -1,0 +1,166 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style>
+.home-btn{position:relative;z-index:60;flex:none;display:inline-flex;align-items:center;gap:4px;background:#c23b2c;color:#fff!important;text-decoration:none;font:700 14px "Gowun Dodum","Apple SD Gothic Neo",sans-serif;padding:8px 12px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.home-btn:focus-visible{outline:2px solid #e3b04b;outline-offset:2px}
+header.top .kim{margin-right:auto}
+@media (max-width:480px){header.top .kim small{display:none}header.top .kim b{font-size:14px}header.top .stats{gap:8px}.home-btn{padding:7px 10px;font-size:13px}}
+</style></head><body>
+<title>한자 두더지 잡기</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Serif+KR:wght@700;900&family=Gowun+Dodum&display=swap">
+<style>
+/* 배치: 한 화면 — 간판줄, 목표 뜻 띠, 3×3 두더지 밭, 아래 시간 막대 */
+:root{--sky:#cfe3d8;--grass:#7fa65a;--grass2:#6a9149;--dirt:#8a5f3a;--dirt2:#6e4a2c;--pit:#2b1c10;--ink:#1f1a14;--paper:#fbf6ea;--seal:#c23b2c;--gold:#e0a63a;--muted:#5d6a55;
+--han:"Noto Serif KR","Batang",serif;--pop:"Black Han Sans","Noto Sans KR",sans-serif;--body:"Gowun Dodum","Apple SD Gothic Neo",sans-serif;color-scheme:light}
+html,body{height:100%}
+body{background:linear-gradient(var(--sky),#e8f1e6 40%,var(--grass) 40%);color:var(--ink);font-family:var(--body);overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.app{height:100%;display:flex;flex-direction:column;gap:10px;max-width:640px;margin:0 auto;box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(251,246,234,.85);border-radius:10px;padding:6px 10px}
+.kim{display:flex;align-items:center;gap:8px}
+.kim i{font-style:normal;width:36px;height:36px;background:var(--seal);color:#fff;display:grid;place-items:center;font-family:var(--han);font-weight:900;font-size:21px;border-radius:3px;transform:rotate(-4deg);flex:none}
+.kim b{font-family:var(--han);font-weight:900;font-size:17px;line-height:1.15;display:block}
+.kim small{display:block;font-size:11px;color:var(--muted);letter-spacing:.06em}
+.stats{display:flex;gap:12px;align-items:center;font-variant-numeric:tabular-nums}
+.stat{text-align:right}.stat b{display:block;font-family:var(--pop);font-weight:400;font-size:21px;color:var(--seal);line-height:1}
+.stat span{font-size:10px;color:var(--muted);letter-spacing:.1em}
+.icon{width:34px;height:34px;border:1px solid rgba(0,0,0,.15);border-radius:8px;background:var(--paper);font-size:15px;cursor:pointer}
+:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
+.band{background:var(--ink);color:var(--paper);border-radius:10px;padding:8px 14px;display:flex;align-items:center;justify-content:center;gap:12px;transition:transform .2s}
+.band.flash{transform:scale(1.05);background:var(--seal)}
+.band span{font-size:13px;opacity:.8}
+.band b{font-family:var(--pop);font-weight:400;font-size:clamp(22px,6vw,30px);letter-spacing:.04em}
+.field{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:8px;position:relative;cursor:none}
+.hole{position:relative;min-height:0}
+.pit{position:absolute;left:12%;right:12%;bottom:14%;height:22%;background:radial-gradient(ellipse at 50% 40%,#140c06,var(--pit) 60%,var(--dirt2));border-radius:50%;z-index:0}
+.clip{position:absolute;left:0;right:0;top:0;bottom:25%;overflow:hidden;z-index:1}
+.lip{position:absolute;left:4%;right:4%;bottom:4%;height:24%;background:radial-gradient(ellipse at 50% 0%,var(--dirt) 55%,var(--dirt2));border-radius:50% 50% 45% 45%/60% 60% 40% 40%;z-index:2;box-shadow:0 6px 0 rgba(0,0,0,.12)}
+.mole{position:absolute;left:50%;bottom:-6%;width:min(72%,130px);aspect-ratio:1/1.05;transform:translate(-50%,105%);transition:transform .16s ease-out;border:0;padding:0;background:none;cursor:none}
+.mole.up{transform:translate(-50%,0)}
+.body{position:absolute;inset:0;background:radial-gradient(circle at 40% 30%,#9b7350,#6b4a2f 70%);border-radius:50% 50% 38% 38%/58% 58% 42% 42%}
+.eye{position:absolute;top:24%;width:9%;aspect-ratio:1;background:#1a120a;border-radius:50%}
+.eye.l{left:31%}.eye.r{right:31%}
+.nose{position:absolute;top:34%;left:50%;width:14%;aspect-ratio:1.3;transform:translateX(-50%);background:#e9908a;border-radius:50%}
+.sign{position:absolute;left:14%;right:14%;top:46%;bottom:6%;background:var(--paper);border:3px solid #4a3220;border-radius:6px;display:grid;place-items:center;font-family:var(--han);font-weight:900;font-size:clamp(26px,8vw,54px);color:var(--ink);line-height:1}
+.mole.bonk .body{background:radial-gradient(circle at 40% 30%,#b08360,#7d5638 70%)}
+.mole.bonk .eye{height:3%;aspect-ratio:auto;top:26%;border-radius:2px;width:12%}
+.mole.bonk{transform:translate(-50%,8%) scale(1.08,.88)}
+.mole.tease .sign{background:#ffe3dc}
+.fx{position:absolute;z-index:5;pointer-events:none;font-family:var(--pop);font-size:24px;color:#fff;-webkit-text-stroke:1.5px var(--ink);animation:up .8s ease-out forwards;white-space:nowrap}
+.fx.bad{color:#ffb3a6}
+@keyframes up{from{transform:translate(-50%,0) scale(.8);opacity:1}to{transform:translate(-50%,-50px) scale(1.2);opacity:0}}
+#hammer{position:fixed;left:0;top:0;width:64px;height:64px;pointer-events:none;z-index:20;transform-origin:80% 80%;transition:rotate .08s}
+#hammer.swing{rotate:-55deg}
+.timer{height:12px;background:rgba(0,0,0,.2);border-radius:6px;overflow:hidden}
+.timer i{display:block;height:100%;background:var(--gold);width:100%}
+.over{position:fixed;inset:0;z-index:30;background:rgba(31,26,20,.86);color:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.over h2{margin:0;font-family:var(--pop);font-weight:400;font-size:clamp(34px,9vw,54px);color:var(--gold)}
+.over p{margin:0;max-width:42ch;line-height:1.6}
+.btn{padding:12px 24px;border-radius:10px;border:0;background:var(--seal);color:#fff;font-family:var(--body);font-weight:700;font-size:17px;cursor:pointer}
+.learned{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:520px}
+.learned span{background:rgba(251,246,234,.12);border-radius:8px;padding:5px 9px;font-size:13px}
+.learned b{font-family:var(--han);font-size:20px;margin-right:4px}
+@media (prefers-reduced-motion:reduce){.mole{transition:none}.fx{animation-duration:.01s}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <a class="home-btn" href="../?from=g4" aria-label="서당 마을로 돌아가기">← 마을로</a>
+    <div class="kim"><i>金</i><div><b>한문 김선생</b><small>한자 두더지 잡기</small></div></div>
+    <div class="stats">
+      <div class="stat"><b id="score">0</b><span>점수</span></div>
+      <div class="stat"><b id="combo">0</b><span>콤보</span></div>
+      <div class="stat"><b id="best">0</b><span>최고</span></div>
+      <button class="icon" id="mute" aria-label="소리 끄기">🔊</button>
+    </div>
+  </header>
+  <div class="band" id="band"><span>이 글자만 때려요</span><b id="tgt">—</b></div>
+  <div class="field" id="field" aria-label="두더지 밭"></div>
+  <div class="timer"><i id="bar"></i></div>
+</div>
+<div class="over" id="over">
+  <h2 id="oTitle">한자 두더지 잡기</h2>
+  <p id="oText">위 띠에 나온 뜻과 음에 맞는 한자를 든 두더지만 뿅망치로 때리세요. 비슷한 글자를 든 두더지는 놀리기만 해요! 60초 동안 몇 점을 낼 수 있을까요?</p>
+  <div class="learned" id="learned"></div>
+  <button class="btn" id="start">시작하기</button>
+</div>
+<svg id="hammer" viewBox="0 0 64 64" aria-hidden="true" style="transform:translate(-200px,-200px)"><rect x="36" y="30" width="7" height="32" rx="3" fill="#8a5a33" transform="rotate(-40 40 46)"/><g transform="rotate(-40 30 24)"><rect x="8" y="12" width="44" height="24" rx="10" fill="#d9483a"/><rect x="8" y="12" width="9" height="24" rx="4" fill="#f4d06a"/><rect x="43" y="12" width="9" height="24" rx="4" fill="#f4d06a"/></g></svg>
+
+<script>
+(()=>{
+const G=[
+ [["土","흙 토"],["士","선비 사"],["王","임금 왕"],["工","장인 공"]],
+ [["日","날 일"],["曰","가로 왈"],["白","흰 백"],["目","눈 목"]],
+ [["未","아닐 미"],["末","끝 말"],["本","근본 본"],["木","나무 목"]],
+ [["人","사람 인"],["入","들 입"],["八","여덟 팔"],["火","불 화"]],
+ [["大","큰 대"],["犬","개 견"],["太","클 태"],["天","하늘 천"]],
+ [["刀","칼 도"],["力","힘 력"],["九","아홉 구"],["方","모 방"]],
+ [["己","몸 기"],["已","이미 이"],["巳","뱀 사"],["弓","활 궁"]],
+ [["千","일천 천"],["干","방패 간"],["午","낮 오"],["牛","소 우"]],
+ [["水","물 수"],["氷","얼음 빙"],["永","길 영"],["小","작을 소"]],
+ [["田","밭 전"],["由","말미암을 유"],["甲","갑옷 갑"],["申","납 신"]],
+ [["玉","구슬 옥"],["主","주인 주"],["王","임금 왕"],["全","온전할 전"]],
+ [["夫","지아비 부"],["失","잃을 실"],["矢","화살 시"],["天","하늘 천"]]
+];
+const $=id=>document.getElementById(id),field=$('field');
+let AC=null,muted=false,NB=null;
+function A(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}if(AC.state==='suspended')AC.resume();return AC}
+function nb(a){if(!NB){NB=a.createBuffer(1,a.sampleRate*.6,a.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}return NB}
+function noise(dur,type,f,q,v,dl=0){const a=A();if(!a||muted)return;const t=a.currentTime+dl,n=a.createBufferSource();n.buffer=nb(a);const fl=a.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const g=a.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);n.connect(fl).connect(g).connect(a.destination);n.start(t);n.stop(t+dur+.05)}
+function tone(f0,f1,dur,type,v,dl=0){const a=A();if(!a||muted)return;const t=a.currentTime+dl,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+.05)}
+const popS=()=>tone(300,700,.08,'sine',.15);
+const bonk=()=>{tone(520,180,.12,'square',.18);noise(.05,'bandpass',1800,2,.5);tone(900,1400,.12,'sine',.12,.05)};
+const tease=()=>{tone(500,900,.1,'triangle',.15);tone(900,500,.12,'triangle',.15,.11)};
+const swish=()=>noise(.06,'bandpass',2200,1,.2);
+const newT=()=>{tone(660,0,.12,'triangle',.15);tone(990,0,.18,'triangle',.15,.1)};
+$('mute').onclick=()=>{muted=!muted;$('mute').textContent=muted?'🔇':'🔊';$('mute').setAttribute('aria-label',muted?'소리 켜기':'소리 끄기')};
+let best=0;try{best=+localStorage.getItem('mole-best')||0}catch(e){}$('best').textContent=best;
+
+const holes=[];
+for(let i=0;i<9;i++){const h=document.createElement('div');h.className='hole';
+  h.innerHTML=`<div class="pit"></div><div class="clip"><button class="mole" tabindex="-1" aria-label=""><span class="body"></span><span class="eye l"></span><span class="eye r"></span><span class="nose"></span><span class="sign"></span></button></div><div class="lip"></div>`;
+  field.appendChild(h);const m=h.querySelector('.mole');const o={el:h,m,sign:h.querySelector('.sign'),up:false,c:null,timer:0,hit:false};holes.push(o);
+  m.addEventListener('pointerdown',e=>{e.preventDefault();whack(o,e)})}
+
+let state='ready',score=0,combo=0,group=null,target=null,hitsOnT=0,tStart=0,total=60000,spawnT=0,hits=0,wrong=0,seen=[];
+function pickTarget(){group=G[Math.floor(Math.random()*G.length)];target=group[Math.floor(Math.random()*group.length)];hitsOnT=0;tStart=performance.now();
+  $('tgt').textContent=target[1];const b=$('band');b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),350);newT();
+  if(!seen.some(s=>s[0]===target[0]))seen.push(target)}
+function start(){A();state='play';score=0;combo=0;hits=0;wrong=0;seen=[];$('over').hidden=true;upd();pickTarget();t0=performance.now();spawnT=0;
+  holes.forEach(h=>down(h,true));requestAnimationFrame(loop)}
+$('start').onclick=start;
+function upd(){$('score').textContent=score;$('combo').textContent=combo}
+function up(h,ms){const isT=Math.random()<.42;let c;if(isT)c=target;else{const pool=Math.random()<.75?group.filter(x=>x[0]!==target[0]):G[Math.floor(Math.random()*G.length)].filter(x=>x[0]!==target[0]);c=pool[Math.floor(Math.random()*pool.length)]}
+  h.c=c;h.sign.textContent=c[0];h.m.setAttribute('aria-label',c[0]);h.m.classList.remove('bonk','tease');h.m.classList.add('up');h.up=true;h.hit=false;popS();
+  clearTimeout(h.timer);h.timer=setTimeout(()=>down(h),ms)}
+function down(h,now){clearTimeout(h.timer);h.m.classList.remove('up');h.up=false;if(now){h.m.classList.remove('bonk','tease')}}
+function fx(h,txt,bad){const r=h.el.getBoundingClientRect(),fr=field.getBoundingClientRect(),d=document.createElement('div');d.className='fx'+(bad?' bad':'');d.textContent=txt;
+  d.style.left=(r.left-fr.left+r.width/2)+'px';d.style.top=(r.top-fr.top+r.height*.15)+'px';field.appendChild(d);setTimeout(()=>d.remove(),850)}
+function whack(h){if(state!=='play'||!h.up||h.hit)return;h.hit=true;
+  if(h.c[0]===target[0]){combo++;hits++;const g=10+Math.min(combo,10)*2;score+=g;bonk();h.m.classList.add('bonk');fx(h,`+${g}`);try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}
+    hitsOnT++;clearTimeout(h.timer);h.timer=setTimeout(()=>down(h),260);if(hitsOnT>=5)setTimeout(pickTarget,300)}
+  else{combo=0;wrong++;score=Math.max(0,score-5);tease();h.m.classList.add('tease');h.sign.textContent=h.c[0];fx(h,`${h.c[1]}! -5`,true);try{navigator.vibrate&&navigator.vibrate([20,30,20])}catch(e){}
+    clearTimeout(h.timer);h.timer=setTimeout(()=>down(h),500)}
+  upd()}
+let t0=0;
+function loop(now){if(state!=='play')return;const el=now-t0,left=Math.max(0,total-el);$('bar').style.width=(left/total*100)+'%';
+  const prog=el/total,gap=900-prog*380,stay=1250-prog*450;
+  if(now>spawnT){const free=holes.filter(h=>!h.up);if(free.length){up(free[Math.floor(Math.random()*free.length)],stay);if(prog>.5&&Math.random()<.35&&free.length>1){const f2=holes.filter(h=>!h.up);up(f2[Math.floor(Math.random()*f2.length)],stay)}}spawnT=now+gap}
+  if(now-tStart>13000)pickTarget();
+  if(left<=0){end();return}requestAnimationFrame(loop)}
+function end(){state='over';holes.forEach(h=>down(h,true));if(score>best){best=score;try{localStorage.setItem('mole-best',best)}catch(e){}$('best').textContent=best}
+  const acc=hits+wrong?Math.round(hits/(hits+wrong)*100):0;$('oTitle').textContent=`${score}점`;
+  $('oText').textContent=`맞힌 두더지 ${hits}마리 · 정확도 ${acc}%. 오늘 만난 글자를 한 번 더 읽어 보세요.`;
+  $('learned').innerHTML=seen.map(s=>`<span><b>${s[0]}</b>${s[1]}</span>`).join('');$('start').textContent='한 판 더';$('over').hidden=false;$('tgt').textContent='—'}
+
+// 뿅망치
+const hm=$('hammer');let fine=matchMedia('(pointer:fine)').matches;
+addEventListener('pointermove',e=>{hm.style.transform=`translate(${e.clientX-48}px,${e.clientY-50}px)`});
+addEventListener('pointerdown',e=>{hm.style.transform=`translate(${e.clientX-48}px,${e.clientY-50}px)`;hm.classList.add('swing');if(state==='play')swish();setTimeout(()=>hm.classList.remove('swing'),110)});
+if(!fine){hm.style.opacity=.9}
+// 키보드: 숫자 1~9 (휴대폰 자판 배열)
+addEventListener('keydown',e=>{const n=parseInt(e.key,10);if(n>=1&&n<=9){const map=[6,7,8,3,4,5,0,1,2];whack(holes[map[n-1]])}});
+})();
+</script>
+
+</body></html>

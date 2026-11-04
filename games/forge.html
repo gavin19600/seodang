@@ -1,0 +1,212 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style>
+.home-btn{position:relative;z-index:60;flex:none;display:inline-flex;align-items:center;gap:4px;background:#c23b2c;color:#fff!important;text-decoration:none;font:700 14px "Gowun Dodum","Apple SD Gothic Neo",sans-serif;padding:8px 12px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.home-btn:focus-visible{outline:2px solid #e3b04b;outline-offset:2px}
+header.top .kim{margin-right:auto}
+@media (max-width:480px){header.top .kim small{display:none}header.top .kim b{font-size:14px}header.top .stats{gap:8px}.home-btn{padding:7px 10px;font-size:13px}}
+</style></head><body>
+<title>한자 대장간</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Serif+KR:wght@700;900&family=Gowun+Dodum&display=swap">
+<style>
+/* 배치: 한 화면 — 간판줄, 모루와 화덕이 있는 대장간 무대, 아래 글자 조각 바구니 */
+:root{--bg:#120f0d;--panel:#1f1a16;--line:#3a312a;--paper:#efe6d2;--ink:#17120e;--seal:#c23b2c;--fire:#ff8a3d;--gold:#e3b04b;--muted:#a69886;
+--han:"Noto Serif KR","Batang",serif;--pop:"Black Han Sans","Noto Sans KR",sans-serif;--body:"Gowun Dodum","Apple SD Gothic Neo",sans-serif;color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--paper);font-family:var(--body);overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.app{height:100%;display:flex;flex-direction:column;gap:10px;max-width:720px;margin:0 auto;box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.kim{display:flex;align-items:center;gap:8px}
+.kim i{font-style:normal;width:36px;height:36px;background:var(--seal);color:#fff;display:grid;place-items:center;font-family:var(--han);font-weight:900;font-size:21px;border-radius:3px;transform:rotate(-4deg);flex:none}
+.kim b{font-family:var(--han);font-weight:900;font-size:17px;line-height:1.15;display:block}
+.kim small{display:block;font-size:11px;color:var(--muted);letter-spacing:.06em}
+.right{display:flex;gap:8px;align-items:center}
+.pill{border:1px solid var(--line);background:var(--panel);color:var(--paper);border-radius:8px;padding:7px 12px;font-family:var(--body);font-size:13px;cursor:pointer}
+.pill b{font-family:var(--pop);font-weight:400;color:var(--gold);font-size:16px;font-variant-numeric:tabular-nums}
+.icon{width:36px;height:36px;border:1px solid var(--line);border-radius:8px;background:none;color:var(--paper);font-size:15px;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.stage{flex:1;min-height:0;position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:pointer}
+.msg{position:absolute;left:12px;right:12px;top:10px;text-align:center;font-size:14px;pointer-events:none;text-shadow:0 1px 3px #000}
+.card{position:absolute;left:10px;right:10px;bottom:10px;background:rgba(239,230,210,.96);color:var(--ink);border-radius:10px;padding:12px 16px;display:flex;gap:14px;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.card .big{font-family:var(--han);font-weight:900;font-size:52px;line-height:1;color:#8f2219;flex:none}
+.card div{min-width:0;flex:1}
+.card h3{margin:0;font-family:var(--han);font-size:18px}
+.card p{margin:2px 0 0;font-size:14px;line-height:1.55}
+.btn{padding:9px 14px;border-radius:8px;border:0;background:var(--seal);color:#fff;font-family:var(--body);font-weight:700;font-size:14px;cursor:pointer;flex:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.tray{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row p{margin:0;font-size:13px;color:var(--muted);flex:1;min-width:0}
+.tiles{display:flex;gap:6px;flex-wrap:wrap}
+.tile{width:46px;height:46px;border-radius:6px;border:1px solid #57606a;background:linear-gradient(#7c838b,#4c5258);color:#f4f1ea;font-family:var(--han);font-weight:900;font-size:24px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+.tile.new{border-color:var(--gold);box-shadow:0 0 0 2px rgba(227,176,75,.4)}
+.book{position:absolute;inset:0;background:rgba(18,15,13,.96);z-index:5;padding:16px;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.book h3{margin:0;font-family:var(--han);font-size:20px}
+.book .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.book .it{border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;gap:10px;align-items:center;background:var(--panel)}
+.book .it b{font-family:var(--han);font-size:32px;font-weight:900;color:var(--gold);line-height:1}
+.book .it.no b{color:#5a5048}
+.book .it span{font-size:13px;line-height:1.4}
+</style>
+
+<div class="app">
+  <header class="top">
+    <a class="home-btn" href="../?from=g2" aria-label="서당 마을로 돌아가기">← 마을로</a>
+    <div class="kim"><i>金</i><div><b>한문 김선생</b><small>한자 대장간</small></div></div>
+    <div class="right">
+      <button class="pill" id="bookBtn">도감 <b id="cnt">0/16</b></button>
+      <button class="icon" id="mute" aria-label="소리 끄기">🔊</button>
+    </div>
+  </header>
+  <div class="stage" id="stage">
+    <canvas id="cv" aria-label="모루. 글자 조각 두 개를 올리고 망치로 세 번 두드리세요"></canvas>
+    <div class="msg" id="msg">아래 조각 두 개를 모루에 올리고, 모루를 세 번 두드리세요</div>
+    <div class="card" id="card" hidden><span class="big" id="rBig"></span><div><h3 id="rTitle"></h3><p id="rWhy"></p></div><button class="btn" id="again">새로 만들기</button></div>
+    <div class="book" id="book" hidden><div class="row"><h3 style="flex:1">한자 도감</h3><button class="btn" id="bookClose">닫기</button></div><div class="grid" id="bookGrid"></div></div>
+  </div>
+  <section class="tray">
+    <div class="row"><p>쇳조각 바구니 · 누르면 모루에 올라가요 (모루 위 조각을 누르면 내려와요)</p>
+      <button class="pill" id="hint">힌트</button><button class="btn" id="strike" disabled>망치질</button></div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+</div>
+
+<script>
+(()=>{
+const R=[
+ ["日","月","明","밝을 명","해(日)와 달(月)이 함께 비추니 밝아요."],
+ ["人","木","休","쉴 휴","사람(亻)이 나무(木)에 기대어 쉬는 모습이에요."],
+ ["女","子","好","좋을 호","어머니(女)가 아이(子)를 안고 있으니 좋아요."],
+ ["口","鳥","鳴","울 명","새(鳥)가 입(口)을 열어 우는 모습이에요."],
+ ["田","力","男","사내 남","밭(田)에서 힘(力)을 쓰는 사람이에요."],
+ ["木","木","林","수풀 림","나무(木)가 둘 모이면 숲이에요."],
+ ["林","木","森","수풀 삼","나무가 셋이면 빽빽한 숲이에요."],
+ ["小","大","尖","뾰족할 첨","아래는 크고(大) 위는 작으니(小) 뾰족해요."],
+ ["人","言","信","믿을 신","사람(亻)의 말(言)은 믿음직해야 해요."],
+ ["山","石","岩","바위 암","산(山)에 있는 큰 돌(石)이 바위예요."],
+ ["火","火","炎","불꽃 염","불(火) 위에 불이 겹쳐 활활 타올라요."],
+ ["日","日","昌","창성할 창","해가 겹쳐 빛나니 번성해요."],
+ ["不","正","歪","비뚤 왜","바르지(正) 않으니(不) 비뚤어요."],
+ ["少","力","劣","못할 렬","힘(力)이 적으니(少) 남보다 못해요."],
+ ["手","目","看","볼 간","손(手)을 눈(目) 위에 얹고 멀리 바라보는 모습이에요."],
+ ["人","山","仙","신선 선","산(山)에 사는 사람(亻)이 신선이에요."]
+];
+const BASE=["日","月","人","木","女","子","口","鳥","田","力","小","大","少","山","石","火","言","手","目","不","正"];
+const key=(a,b)=>[a,b].sort().join("|");
+const MAP={};R.forEach((r,i)=>MAP[key(r[0],r[1])]=i);
+const found=new Set();
+const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d'),stage=$('stage');
+const HAN='"Noto Serif KR","Batang",serif',POP='"Black Han Sans","Noto Sans KR",sans-serif';
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let W=0,H=0;function resize(){const d=Math.min(devicePixelRatio||1,2),r=stage.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0)}
+new ResizeObserver(resize).observe(stage);resize();
+
+let AC=null,muted=false,NB=null;
+function A(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}if(AC.state==='suspended')AC.resume();return AC}
+function nb(a){if(!NB){NB=a.createBuffer(1,a.sampleRate*.6,a.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}return NB}
+function noise(dur,type,f,q,v,dl=0){const a=A();if(!a||muted)return;const t=a.currentTime+dl,n=a.createBufferSource();n.buffer=nb(a);const fl=a.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const g=a.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);n.connect(fl).connect(g).connect(a.destination);n.start(t);n.stop(t+dur+.05)}
+function tone(f0,f1,dur,type,v,dl=0){const a=A();if(!a||muted)return;const t=a.currentTime+dl,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+.05)}
+function clang(h){const b=820+Math.random()*60;[[1,.28],[2.4,.14],[3.9,.08],[5.3,.05]].forEach(([m,v])=>tone(b*m,0,.9-h*.2,'sine',v));noise(.06,'highpass',3500,.6,.5);tone(140,60,.15,'sine',.4)}
+function hiss(){noise(1.4,'highpass',2500,.4,.35)}
+function fail(){tone(1900,1200,.5,'triangle',.18);noise(.2,'bandpass',2600,4,.3);tone(220,90,.35,'sawtooth',.12,.05)}
+function clink(){tone(1500,0,.15,'sine',.12);tone(2400,0,.1,'sine',.06,.02)}
+function win(){[659.25,783.99,987.77,1318.5].forEach((f,i)=>tone(f,0,1.2,'triangle',.12,i*.08))}
+$('mute').onclick=()=>{muted=!muted;$('mute').textContent=muted?'🔇':'🔊';$('mute').setAttribute('aria-label',muted?'소리 켜기':'소리 끄기')};
+
+let slots=[null,null],heat=0,strikes=0,phase='idle',pt=0,result=null,hs=0,shake=0,lastNew=null;
+const sparks=[],pops=[];
+function tilesList(){const extra=[...found].map(i=>R[i][2]).filter(c=>R.some(r=>r[0]===c||r[1]===c));return [...BASE,...extra]}
+function drawTiles(){$('tiles').innerHTML=tilesList().map(c=>`<button class="tile ${c===lastNew?'new':''}" data-c="${c}">${c}</button>`).join('');
+  $('tiles').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>place(b.dataset.c));
+  $('cnt').textContent=`${found.size}/${R.length}`;$('strike').disabled=!(slots[0]&&slots[1])||phase!=='idle'}
+function setMsg(t){$('msg').textContent=t}
+function place(c){A();if(phase==='done')reset();if(phase!=='idle')return;const i=slots[0]?(slots[1]?-1:1):0;if(i<0){setMsg('모루가 꽉 찼어요. 망치질하거나 조각을 내려 주세요');return}
+  slots[i]=c;heat=0;strikes=0;clink();drawTiles();if(slots[0]&&slots[1])setMsg('모루를 세 번 두드리세요! (스페이스 키도 돼요)')}
+function reset(){slots=[null,null];heat=0;strikes=0;phase='idle';result=null;$('card').hidden=true;drawTiles();setMsg('아래 조각 두 개를 모루에 올리고, 모루를 세 번 두드리세요')}
+$('again').onclick=reset;
+
+function geom(){const pw=Math.min(W*.2,H*.22,110),ay=H*.62;return{pw,ay,s0:W/2-pw*.62,s1:W/2+pw*.62,cx:W/2}}
+function strike(){if(phase!=='idle'||!slots[0]||!slots[1])return;A();phase='strike';hs=1;
+  setTimeout(()=>{const g=geom();strikes++;heat=Math.min(1,heat+.36);shake=7;clang(heat);try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}
+    for(let i=0;i<22;i++){const a=-Math.PI/2+(Math.random()-.5)*2.6,s=3+Math.random()*7;sparks.push({x:g.cx,y:g.ay-g.pw*.5,vx:Math.cos(a)*s,vy:Math.sin(a)*s,t:1})}
+    pops.push({x:g.cx,y:g.ay-g.pw*1.3,t:0,txt:['땅!','깡!','쨍!'][strikes-1]||'땅!'});
+    if(strikes>=3)resolve();else phase='idle';drawTiles()},140)}
+function resolve(){const k=key(slots[0],slots[1]);
+  if(k in MAP){const i=MAP[k];result=i;phase='merge';pt=0;hiss();setTimeout(win,500);const isNew=!found.has(i);found.add(i);
+    lastNew=isNew&&R.some(r=>r[0]===R[i][2]||r[1]===R[i][2])?R[i][2]:null;
+    setTimeout(()=>{phase='done';const r=R[i];$('rBig').textContent=r[2];$('rTitle').textContent=`${r[0]} + ${r[1]} = ${r[2]} (${r[3]})${isNew?' · 새 글자!':''}`;$('rWhy').textContent=r[4]+(lastNew?` 이제 ${r[2]} 조각도 바구니에 들어왔어요.`:'');$('card').hidden=false;drawTiles()},900);
+    setMsg('')}
+  else{phase='fail';pt=0;fail();setMsg(`${slots[0]}와 ${slots[1]}은 붙지 않아요. 다른 짝을 찾아보세요`);
+    setTimeout(()=>{slots=[null,null];heat=0;strikes=0;phase='idle';drawTiles()},900)}}
+$('strike').onclick=strike;
+addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){if(document.activeElement&&document.activeElement.tagName==='BUTTON')return;e.preventDefault();strike()}});
+cv.addEventListener('pointerdown',e=>{A();const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,g=geom();
+  if(phase==='done'){reset();return}
+  if(phase==='idle'&&!(slots[0]&&slots[1])){[g.s0,g.s1].forEach((sx,i)=>{if(slots[i]&&Math.abs(x-sx)<g.pw/2&&Math.abs(y-(g.ay-g.pw*.5))<g.pw/2){slots[i]=null;clink();drawTiles()}});return}
+  strike()});
+$('hint').onclick=()=>{const left=R.map((r,i)=>i).filter(i=>!found.has(i)&&R[i].slice(0,2).every(c=>tilesList().includes(c)));
+  if(!left.length){setMsg('지금 만들 수 있는 글자는 모두 찾았어요!');return}const r=R[left[Math.floor(Math.random()*left.length)]];setMsg(`힌트: ${r[0]} + ? → "${r[3]}"`)};
+$('bookBtn').onclick=()=>{$('bookGrid').innerHTML=R.map((r,i)=>found.has(i)?`<div class="it"><b>${r[2]}</b><span>${r[3]}<br>${r[0]} + ${r[1]}</span></div>`:`<div class="it no"><b>?</b><span>아직 못 만들었어요</span></div>`).join('');$('book').hidden=false};
+$('bookClose').onclick=()=>{$('book').hidden=true};
+
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function mix(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*t))}
+function plate(x,y,s,c,h,alpha=1){
+  ctx.save();ctx.globalAlpha=alpha;
+  const steel=[112,118,125],hot=[255,138,61],white=[255,236,190];const col=h<.7?mix(steel,hot,h/.7):mix(hot,white,(h-.7)/.3);
+  if(h>.2){const gl=ctx.createRadialGradient(x,y,s*.2,x,y,s*1.1);gl.addColorStop(0,`rgba(255,140,60,${.5*h})`);gl.addColorStop(1,'rgba(255,140,60,0)');ctx.fillStyle=gl;ctx.fillRect(x-s*1.2,y-s*1.2,s*2.4,s*2.4)}
+  const gr=ctx.createLinearGradient(x,y-s/2,x,y+s/2);gr.addColorStop(0,`rgb(${mix(col,[255,255,255],.25)})`);gr.addColorStop(1,`rgb(${mix(col,[0,0,0],.3)})`);
+  rr(x-s/2,y-s/2,s,s,s*.1);ctx.fillStyle=gr;ctx.fill();ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=2;ctx.stroke();
+  ctx.font=`900 ${s*.72}px ${HAN}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=h>.6?'#5a1a05':'#1b1d20';ctx.fillText(c,x,y+s*.04);
+  ctx.fillStyle='rgba(255,255,255,.2)';ctx.fillRect(x-s/2+4,y-s/2+3,s-8,3);ctx.restore()}
+function drawScene(t){
+  ctx.fillStyle='#17120f';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,.03)';ctx.lineWidth=1;for(let y=0;y<H*.75;y+=26){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();for(let x=(y/26%2)*30;x<W;x+=60){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+26);ctx.stroke()}}
+  // 화덕
+  const fx=W*.13,fy=H*.6,fl=.8+Math.sin(t/120)*.1+Math.random()*.06;
+  const fg=ctx.createRadialGradient(fx,fy,5,fx,fy,Math.min(W,H)*.5*fl);fg.addColorStop(0,'rgba(255,150,60,.55)');fg.addColorStop(.4,'rgba(255,90,30,.15)');fg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=fg;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#2a2320';rr(fx-W*.09,fy-H*.05,W*.18,H*.2,8);ctx.fill();ctx.fillStyle='#0d0a08';rr(fx-W*.06,fy-H*.02,W*.12,H*.08,6);ctx.fill();
+  for(let i=0;i<7;i++){ctx.fillStyle=`rgba(255,${120+Math.random()*80},40,${.6+Math.random()*.4})`;ctx.beginPath();ctx.arc(fx-W*.045+i*W*.015,fy+H*.04,3+Math.random()*3,0,7);ctx.fill()}
+  // 바닥
+  const ground=H*.82;const gg=ctx.createLinearGradient(0,ground,0,H);gg.addColorStop(0,'#2b221c');gg.addColorStop(1,'#0e0b09');ctx.fillStyle=gg;ctx.fillRect(0,ground,W,H-ground);
+  // 모루
+  const g=geom(),aw=g.pw*3.3,top=g.ay;
+  ctx.fillStyle='rgba(0,0,0,.5)';ctx.beginPath();ctx.ellipse(g.cx,ground+6,aw*.5,10,0,0,7);ctx.fill();
+  ctx.fillStyle='#2c3034';ctx.beginPath();ctx.moveTo(g.cx-aw*.25,top+g.pw*.35);ctx.lineTo(g.cx+aw*.25,top+g.pw*.35);ctx.lineTo(g.cx+aw*.14,ground-g.pw*.25);ctx.lineTo(g.cx-aw*.14,ground-g.pw*.25);ctx.fill();
+  ctx.fillStyle='#24282b';rr(g.cx-aw*.32,ground-g.pw*.3,aw*.64,g.pw*.32,6);ctx.fill();
+  const tg=ctx.createLinearGradient(0,top,0,top+g.pw*.38);tg.addColorStop(0,'#7c848b');tg.addColorStop(1,'#3a3f44');ctx.fillStyle=tg;
+  ctx.beginPath();ctx.moveTo(g.cx-aw*.5,top+g.pw*.05);ctx.quadraticCurveTo(g.cx-aw*.62,top+g.pw*.1,g.cx-aw*.7,top+g.pw*.02);ctx.lineTo(g.cx-aw*.42,top+g.pw*.38);ctx.lineTo(g.cx+aw*.45,top+g.pw*.38);ctx.lineTo(g.cx+aw*.45,top);ctx.lineTo(g.cx-aw*.42,top);ctx.closePath();ctx.fill();
+  if(heat>0){ctx.fillStyle=`rgba(255,120,40,${heat*.25})`;ctx.fillRect(g.cx-aw*.42,top,aw*.87,4)}
+}
+function drawHammer(){const g=geom(),k=hs>0?Math.sin(hs*Math.PI):0,ang=-1.1+k*1.05,px=g.cx+g.pw*2.2,py=g.ay-g.pw*1.1;
+  ctx.save();ctx.translate(px,py);ctx.rotate(ang);ctx.fillStyle='#6b4a32';rr(-g.pw*2,-g.pw*.07,g.pw*2,g.pw*.14,4);ctx.fill();
+  const hg=ctx.createLinearGradient(0,-g.pw*.3,0,g.pw*.3);hg.addColorStop(0,'#8a9198');hg.addColorStop(1,'#33383d');ctx.fillStyle=hg;rr(-g.pw*2.35,-g.pw*.3,g.pw*.5,g.pw*.6,5);ctx.fill();ctx.restore()}
+
+let last=performance.now();
+function frame(now){const dt=Math.min(2.5,(now-last)/16.67);last=now;
+  if(hs>0)hs=Math.max(0,hs-.09*dt);shake*=Math.pow(.82,dt);pt+=dt;
+  if(phase==='done'&&heat>0)heat=Math.max(.15,heat-.004*dt);
+  ctx.save();if(!reduce&&shake>.3)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+  drawScene(now);const g=geom(),py=g.ay-g.pw*.5;
+  if(phase==='merge'||phase==='done'){const k=phase==='merge'?Math.min(1,pt/40):1;
+    if(k<1){[g.s0,g.s1].forEach((sx,i)=>plate(sx+(g.cx-sx)*k,py,g.pw,slots[i],1,1-k))}
+    const s=g.pw*(.6+.7*Math.min(1,k*1.2));plate(g.cx,py-g.pw*.3*k,s,R[result][2],phase==='done'?heat:1);
+  }else{
+    [g.s0,g.s1].forEach((sx,i)=>{const fx=phase==='fail'?(Math.random()-.5)*10:0;
+      if(slots[i])plate(sx+fx,py-(phase==='fail'?pt*2:0),g.pw,slots[i],heat,phase==='fail'?Math.max(0,1-pt/50):1);
+      else{ctx.save();ctx.setLineDash([6,5]);ctx.strokeStyle='rgba(239,230,210,.35)';ctx.lineWidth=2;rr(sx-g.pw/2,py-g.pw/2,g.pw,g.pw,g.pw*.1);ctx.stroke();ctx.restore();
+        ctx.fillStyle='rgba(239,230,210,.35)';ctx.font=`${g.pw*.18}px ${POP}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i?'조각 2':'조각 1',sx,py)}});
+    if(slots[0]&&slots[1]&&phase!=='fail'){ctx.fillStyle='rgba(227,176,75,.9)';ctx.font=`${g.pw*.3}px ${POP}`;ctx.textAlign='center';ctx.fillText('+',g.cx,py);
+      for(let i=0;i<3;i++){ctx.fillStyle=i<strikes?'#ff8a3d':'rgba(239,230,210,.25)';ctx.beginPath();ctx.arc(g.cx-18+i*18,g.ay+g.pw*.65,5,0,7);ctx.fill()}}
+  }
+  drawHammer();
+  for(let i=sparks.length-1;i>=0;i--){const p=sparks[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=.25*dt;p.t-=.025*dt;if(p.t<=0){sparks.splice(i,1);continue}
+    ctx.strokeStyle=`rgba(255,${150+p.t*100},60,${p.t})`;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-p.vx*1.5,p.y-p.vy*1.5);ctx.stroke()}
+  for(let i=pops.length-1;i>=0;i--){const p=pops[i];p.t+=dt/36;if(p.t>=1){pops.splice(i,1);continue}ctx.save();ctx.translate(p.x,p.y-p.t*30);ctx.globalAlpha=1-p.t;ctx.font=`30px ${POP}`;ctx.textAlign='center';ctx.lineWidth=6;ctx.strokeStyle='#120f0d';ctx.strokeText(p.txt,0,0);ctx.fillStyle='#ffd08a';ctx.fillText(p.txt,0,0);ctx.restore()}
+  ctx.restore();requestAnimationFrame(frame)}
+drawTiles();requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>

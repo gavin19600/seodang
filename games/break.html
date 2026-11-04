@@ -1,0 +1,177 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style>
+.home-btn{position:relative;z-index:60;flex:none;display:inline-flex;align-items:center;gap:4px;background:#c23b2c;color:#fff!important;text-decoration:none;font:700 14px "Gowun Dodum","Apple SD Gothic Neo",sans-serif;padding:8px 12px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.home-btn:focus-visible{outline:2px solid #e3b04b;outline-offset:2px}
+header.top .kim{margin-right:auto}
+@media (max-width:480px){header.top .kim small{display:none}header.top .kim b{font-size:14px}header.top .stats{gap:8px}.home-btn{padding:7px 10px;font-size:13px}}
+</style></head><body>
+<title>한자 격파</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Serif+KR:wght@700;900&family=Gowun+Dodum&display=swap">
+<style>
+/* 배치: 한 화면 — 간판줄, 도장(道場) 마루 위 송판 무대, 아래 목표 뜻 표시 */
+:root{--bg:#14120f;--panel:#201b16;--line:#3b322a;--paper:#f0e7d3;--ink:#17120e;--seal:#c23b2c;--gold:#e3b04b;--muted:#a69886;
+--han:"Noto Serif KR","Batang",serif;--pop:"Black Han Sans","Noto Sans KR",sans-serif;--body:"Gowun Dodum","Apple SD Gothic Neo",sans-serif;color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--paper);font-family:var(--body);overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.app{height:100%;display:flex;flex-direction:column;gap:10px;max-width:760px;margin:0 auto;box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.kim{display:flex;align-items:center;gap:8px}
+.kim i{font-style:normal;width:36px;height:36px;background:var(--seal);color:#fff;display:grid;place-items:center;font-family:var(--han);font-weight:900;font-size:21px;border-radius:3px;transform:rotate(-4deg);flex:none}
+.kim b{font-family:var(--han);font-weight:900;font-size:17px;line-height:1.15;display:block}
+.kim small{display:block;font-size:11px;color:var(--muted);letter-spacing:.06em}
+.stats{display:flex;gap:14px;align-items:center;font-variant-numeric:tabular-nums}
+.stat{text-align:right}.stat b{display:block;font-family:var(--pop);font-weight:400;font-size:21px;color:var(--gold);line-height:1}
+.stat span{font-size:10px;color:var(--muted);letter-spacing:.1em}
+.icon{width:36px;height:36px;border:1px solid var(--line);border-radius:8px;background:none;color:var(--paper);font-size:15px;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.stage{flex:1;min-height:0;position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:pointer}
+.over{position:absolute;inset:0;background:rgba(20,18,15,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:20px;overflow:auto}
+.over h2{margin:0;font-family:var(--pop);font-weight:400;font-size:clamp(34px,8vw,52px);color:var(--gold)}
+.over p{margin:0;max-width:44ch;line-height:1.6}
+.miss{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.miss span{border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--panel);font-size:13px}
+.miss b{font-family:var(--han);font-size:22px;margin-right:4px}
+.btn{padding:11px 22px;border-radius:8px;border:0;background:var(--seal);color:#fff;font-family:var(--body);font-weight:700;font-size:16px;cursor:pointer}
+.target{display:flex;align-items:center;justify-content:center;gap:12px;min-height:46px}
+.target span{font-size:13px;color:var(--muted)}
+.target b{font-family:var(--pop);font-weight:400;font-size:28px;letter-spacing:.04em}
+</style>
+
+<div class="app">
+  <header class="top">
+    <a class="home-btn" href="../?from=g3" aria-label="서당 마을로 돌아가기">← 마을로</a>
+    <div class="kim"><i>金</i><div><b>한문 김선생</b><small>한자 격파</small></div></div>
+    <div class="stats">
+      <div class="stat"><b id="score">0</b><span>점수</span></div>
+      <div class="stat"><b id="lives">♥♥♥</b><span>목숨</span></div>
+      <div class="stat"><b id="best">0</b><span>최고</span></div>
+      <button class="icon" id="mute" aria-label="소리 끄기">🔊</button>
+    </div>
+  </header>
+  <div class="target"><span>격파할 글자</span><b id="tgt">—</b></div>
+  <div class="stage" id="stage">
+    <canvas id="cv" aria-label="송판 격파 무대. 뜻에 맞는 한자 송판을 누르세요. 숫자 키 1~4도 됩니다"></canvas>
+    <div class="over" id="over">
+      <h2 id="oTitle">한자 격파</h2>
+      <p id="oText">위에 나오는 뜻과 음에 맞는 한자 송판만 손날로 내리치세요. 비슷하게 생긴 글자가 섞여 있어요. 틀리면 손이 아파요! 갈수록 송판이 늘고 시간이 짧아져요.</p>
+      <div class="miss" id="miss"></div>
+      <button class="btn" id="start">시작하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const G=[
+ [["土","흙 토"],["士","선비 사"],["王","임금 왕"],["工","장인 공"]],
+ [["日","날 일"],["曰","가로 왈"],["白","흰 백"],["目","눈 목"]],
+ [["未","아닐 미"],["末","끝 말"],["本","근본 본"],["木","나무 목"]],
+ [["人","사람 인"],["入","들 입"],["八","여덟 팔"],["火","불 화"]],
+ [["大","큰 대"],["犬","개 견"],["太","클 태"],["天","하늘 천"]],
+ [["刀","칼 도"],["力","힘 력"],["九","아홉 구"],["方","모 방"]],
+ [["己","몸 기"],["已","이미 이"],["巳","뱀 사"],["弓","활 궁"]],
+ [["千","일천 천"],["干","방패 간"],["午","낮 오"],["牛","소 우"]],
+ [["水","물 수"],["氷","얼음 빙"],["永","길 영"],["小","작을 소"]],
+ [["田","밭 전"],["由","말미암을 유"],["甲","갑옷 갑"],["申","납 신"]],
+ [["玉","구슬 옥"],["主","주인 주"],["王","임금 왕"],["全","온전할 전"]],
+ [["夫","지아비 부"],["失","잃을 실"],["矢","화살 시"],["天","하늘 천"]]
+];
+const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d'),stage=$('stage');
+const HAN='"Noto Serif KR","Batang",serif',POP='"Black Han Sans","Noto Sans KR",sans-serif';
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let W=0,H=0;function resize(){const d=Math.min(devicePixelRatio||1,2),r=stage.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0)}
+new ResizeObserver(resize).observe(stage);resize();
+let AC=null,muted=false,NB=null;
+function A(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}if(AC.state==='suspended')AC.resume();return AC}
+function nb(a){if(!NB){NB=a.createBuffer(1,a.sampleRate*.6,a.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}return NB}
+function noise(dur,type,f,q,v,dl=0){const a=A();if(!a||muted)return;const t=a.currentTime+dl,n=a.createBufferSource();n.buffer=nb(a);const fl=a.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const g=a.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);n.connect(fl).connect(g).connect(a.destination);n.start(t);n.stop(t+dur+.05)}
+function tone(f0,f1,dur,type,v,dl=0){const a=A();if(!a||muted)return;const t=a.currentTime+dl,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+.05)}
+function kiai(){noise(.12,'bandpass',900,1.2,.25)}
+function snap(){noise(.04,'highpass',2500,.7,1);noise(.18,'bandpass',1200,2,.7,.01);tone(160,50,.25,'sine',.9,.01);for(let i=0;i<4;i++)noise(.03,'bandpass',3000+Math.random()*2000,5,.25,.06+i*.04)}
+function ouch(){tone(240,120,.3,'square',.15);noise(.08,'lowpass',500,.7,.6);tone(90,60,.2,'sine',.6)}
+function tick(){tone(1200,0,.05,'square',.04)}
+$('mute').onclick=()=>{muted=!muted;$('mute').textContent=muted?'🔇':'🔊';$('mute').setAttribute('aria-label',muted?'소리 켜기':'소리 끄기')};
+let best=0;try{best=+localStorage.getItem('gyeokpa-best')||0}catch(e){}$('best').textContent=best;
+
+let state='ready',score=0,lives=3,level=0,combo=0,boards=[],target=null,tLeft=0,tMax=6,busy=0,hand=null,halves=[],chips=[],pops=[],misses=[],shake=0,redFlash=0,lastSec=0;
+function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function newRound(){const g=G[Math.floor(Math.random()*G.length)],n=Math.min(4,2+Math.floor(level/3));
+  const pick=shuffle([...g]).slice(0,n);target=pick[Math.floor(Math.random()*n)];
+  boards=shuffle(pick).map(([c,h])=>({c,h,broken:false,shake:0,glow:0}));
+  tMax=Math.max(2.4,6-level*.22);tLeft=tMax;busy=0;$('tgt').textContent=target[1]}
+function start(){A();state='play';score=0;lives=3;level=0;combo=0;misses=[];$('over').hidden=true;upd();newRound()}
+$('start').onclick=start;
+function upd(){$('score').textContent=score;$('lives').textContent='♥'.repeat(lives)+'♡'.repeat(3-lives)}
+function layout(){const n=boards.length,gap=W*.04,bw=Math.min(170,(W-gap*(n+1))/n),bh=bw*.62,y=H*.5;
+  return boards.map((b,i)=>({x:gap+i*(bw+gap)+(W-(gap*(n+1)+bw*n))/2+bw/2,y,bw,bh}))}
+function hit(i){if(state!=='play'||busy||!boards[i])return;const L=layout()[i],b=boards[i];
+  busy=1;hand={x:L.x,y:L.y,t:0,ok:b.c===target[0],i};kiai();}
+function impact(){const h=hand,b=boards[h.i],L=layout()[h.i];
+  if(h.ok){b.broken=true;snap();shake=12;try{navigator.vibrate&&navigator.vibrate([40,20,60])}catch(e){}
+    halves.push({c:b.c,x:L.x-L.bw/4,y:L.y,vx:-2.5,vy:-3,r:0,vr:-.06,w:L.bw/2,h:L.bh,side:0},{c:b.c,x:L.x+L.bw/4,y:L.y,vx:2.5,vy:-3,r:0,vr:.06,w:L.bw/2,h:L.bh,side:1});
+    for(let k=0;k<26;k++){const a=-Math.PI/2+(Math.random()-.5)*3,s=2+Math.random()*7;chips.push({x:L.x+(Math.random()-.5)*20,y:L.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,t:1,r:Math.random()*7})}
+    combo++;const gain=10+combo*2+Math.round(tLeft/tMax*10);score+=gain;level++;pops.push({x:L.x,y:L.y-L.bh,t:0,txt:combo>2?`${combo}연속 격파!`:'격파!',big:combo>2});
+    upd();setTimeout(()=>{if(state==='play')newRound()},800)}
+  else{b.shake=1;ouch();shake=6;redFlash=1;combo=0;lives--;misses.push(target);upd();try{navigator.vibrate&&navigator.vibrate(120)}catch(e){}
+    pops.push({x:L.x,y:L.y-L.bh,t:0,txt:'아얏!'});boards.forEach(x=>{if(x.c===target[0])x.glow=1});
+    setTimeout(()=>{if(lives<=0)gameOver();else if(state==='play')newRound()},1100)}}
+function timeout(){if(busy)return;busy=1;combo=0;lives--;misses.push(target);upd();ouch();redFlash=.7;boards.forEach(x=>{if(x.c===target[0])x.glow=1});
+  pops.push({x:W/2,y:H*.25,t:0,txt:'시간 초과!'});setTimeout(()=>{if(lives<=0)gameOver();else newRound()},1100)}
+function gameOver(){state='over';if(score>best){best=score;try{localStorage.setItem('gyeokpa-best',best)}catch(e){}$('best').textContent=best}
+  $('oTitle').textContent=`${score}점`;$('oText').textContent=score>=best&&score>0?'새 최고 기록이에요! 아래 글자를 한 번 더 살펴보고 다시 도전해 보세요.':'아래 글자들이 헷갈렸어요. 모양 차이를 살펴보고 다시 도전해 보세요.';
+  const u=[];misses.forEach(m=>{if(!u.some(x=>x[0]===m[0]))u.push(m)});
+  $('miss').innerHTML=u.map(m=>`<span><b>${m[0]}</b>${m[1]}</span>`).join('');$('start').textContent='다시 도전';$('over').hidden=false;$('tgt').textContent='—'}
+cv.addEventListener('pointerdown',e=>{A();const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  layout().forEach((L,i)=>{if(Math.abs(x-L.x)<L.bw/2+6&&y>L.y-L.bh*1.2&&y<L.y+L.bh*1.6)hit(i)})});
+addEventListener('keydown',e=>{const n=parseInt(e.key,10);if(n>=1&&n<=4){hit(n-1)}else if((e.key==='Enter'||e.key===' ')&&state!=='play'&&!$('over').hidden&&document.activeElement!==$('start')){start()}});
+
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function wood(x,y,w,h,c,glow){const g=ctx.createLinearGradient(x,y,x,y+h);g.addColorStop(0,'#e7c48d');g.addColorStop(1,'#c99a5b');ctx.fillStyle=g;ctx.fillRect(x,y,w,h);
+  ctx.strokeStyle='rgba(120,75,30,.35)';ctx.lineWidth=1.2;for(let k=1;k<6;k++){ctx.beginPath();ctx.moveTo(x,y+h*k/6);ctx.bezierCurveTo(x+w*.3,y+h*k/6+3,x+w*.7,y+h*k/6-3,x+w,y+h*k/6);ctx.stroke()}
+  ctx.fillStyle='#a8763d';ctx.fillRect(x,y+h,w,Math.max(8,h*.12));
+  if(glow>0){ctx.strokeStyle=`rgba(227,176,75,${glow})`;ctx.lineWidth=4;ctx.strokeRect(x-2,y-2,w+4,h+4)}
+  ctx.fillStyle='#1d140c';ctx.font=`900 ${h*.72}px ${HAN}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(c,x+w/2,y+h*.53)}
+function block(x,y,w,h){ctx.fillStyle='#6f6c66';ctx.fillRect(x,y,w,h);ctx.fillStyle='#57544f';ctx.fillRect(x+w*.2,y+h*.25,w*.6,h*.5);ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(x,y,w,3)}
+function drawHand(h){const L=layout()[h.i];if(!L)return;const k=h.t<.5?h.t/.5:1-(h.t-.5)*(h.ok?.4:2),y=L.y-L.bh*2.4+(L.bh*2.4)*Math.min(1,k),x=h.x;
+  ctx.save();ctx.translate(x,y);ctx.rotate(.15);const s=L.bw*.32;
+  ctx.fillStyle='#f0e7d3';rr(-s*.5,-s*2.4,s,s*1.4,s*.2);ctx.fill();ctx.fillStyle='#e9b99a';rr(-s*.42,-s*1.1,s*.84,s*1.15,s*.3);ctx.fill();
+  ctx.strokeStyle='rgba(120,60,40,.4)';ctx.lineWidth=1.5;for(let k2=1;k2<4;k2++){ctx.beginPath();ctx.moveTo(-s*.42,-s*1.1+k2*s*.28);ctx.lineTo(s*.2,-s*1.1+k2*s*.28);ctx.stroke()}
+  ctx.restore()}
+function drawScene(){
+  ctx.fillStyle='#231c15';ctx.fillRect(0,0,W,H);
+  // 벽 족자
+  ctx.fillStyle='#ece2cb';const sw=Math.min(90,W*.14);rr(W/2-sw/2,H*.05,sw,H*.28,3);ctx.fill();ctx.fillStyle='#5a3a22';ctx.fillRect(W/2-sw/2-6,H*.05,sw+12,6);ctx.fillRect(W/2-sw/2-6,H*.33-6,sw+12,6);
+  ctx.fillStyle='#17120e';ctx.font=`900 ${sw*.55}px ${HAN}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('忍',W/2,H*.15);ctx.font=`900 ${sw*.3}px ${HAN}`;ctx.fillText('精神',W/2,H*.26);
+  const lg=ctx.createRadialGradient(W/2,0,10,W/2,H*.4,H*.8);lg.addColorStop(0,'rgba(255,220,160,.25)');lg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=lg;ctx.fillRect(0,0,W,H);
+  const fy=H*.72,fg=ctx.createLinearGradient(0,fy,0,H);fg.addColorStop(0,'#5a4128');fg.addColorStop(1,'#2a1d12');ctx.fillStyle=fg;ctx.fillRect(0,fy,W,H-fy);
+  ctx.strokeStyle='rgba(0,0,0,.25)';for(let x=0;x<W;x+=70){ctx.beginPath();ctx.moveTo(x,fy);ctx.lineTo(x,H);ctx.stroke()}
+}
+let last=performance.now();
+function frame(now){const dt=Math.min(2.5,(now-last)/16.67);last=now;shake*=Math.pow(.84,dt);redFlash*=Math.pow(.9,dt);
+  if(state==='play'&&!busy){tLeft-=dt/60;const s=Math.ceil(tLeft);if(tLeft<3&&s!==lastSec){lastSec=s;tick()}if(tLeft<=0){tLeft=0;timeout()}}
+  if(hand){hand.t+=dt*.06;if(hand.t>=.5&&!hand.hit){hand.hit=1;impact()}if(hand.t>1.2)hand=null}
+  ctx.save();if(!reduce&&shake>.3)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+  drawScene();
+  const Ls=layout();
+  Ls.forEach((L,i)=>{const b=boards[i];const bkW=L.bw*.22,bkH=L.bh*.9;block(L.x-L.bw/2+4,L.y+L.bh+8,bkW,bkH);block(L.x+L.bw/2-4-bkW,L.y+L.bh+8,bkW,bkH);
+    if(!b.broken){const sx=b.shake>0?(Math.random()-.5)*10*b.shake:0;b.shake=Math.max(0,b.shake-.04*dt);b.glow=Math.max(0,b.glow-.01*dt);wood(L.x-L.bw/2+sx,L.y,L.bw,L.bh,b.c,b.glow);
+      if(state==='play'){ctx.fillStyle='rgba(240,231,211,.5)';ctx.font=`${Math.max(11,L.bw*.1)}px ${POP}`;ctx.textAlign='center';ctx.fillText(String(i+1),L.x,L.y+L.bh+L.bh*1.1)}}});
+  halves.forEach(h=>{h.x+=h.vx*dt;h.y+=h.vy*dt;h.vy+=.4*dt;h.r+=h.vr*dt;ctx.save();ctx.translate(h.x,h.y+h.h/2);ctx.rotate(h.r);
+    ctx.beginPath();ctx.rect(-h.w/2,-h.h/2,h.w,h.h*1.2);ctx.clip();wood(-h.w/2-(h.side?h.w:0),-h.h/2,h.w*2,h.h,h.c,0);ctx.restore()});
+  for(let i=halves.length-1;i>=0;i--)if(halves[i].y>H+200)halves.splice(i,1);
+  for(let i=chips.length-1;i>=0;i--){const p=chips[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=.3*dt;p.t-=.02*dt;p.r+=.2;if(p.t<=0){chips.splice(i,1);continue}
+    ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.globalAlpha=p.t;ctx.fillStyle='#d9ad6c';ctx.fillRect(-5,-1.5,10,3);ctx.restore()}
+  if(hand)drawHand(hand);
+  for(let i=pops.length-1;i>=0;i--){const p=pops[i];p.t+=dt/45;if(p.t>=1){pops.splice(i,1);continue}const sc=(p.big?1.3:1)*(.7+Math.min(p.t*4,1)*.5);
+    ctx.save();ctx.translate(p.x,p.y-p.t*40);ctx.scale(sc,sc);ctx.globalAlpha=1-p.t;ctx.font=`34px ${POP}`;ctx.textAlign='center';ctx.lineWidth=7;ctx.strokeStyle='#14120f';ctx.strokeText(p.txt,0,0);ctx.fillStyle=p.big?'#e3b04b':'#fff3dc';ctx.fillText(p.txt,0,0);ctx.restore()}
+  ctx.restore();
+  if(redFlash>.02){ctx.fillStyle=`rgba(194,59,44,${redFlash*.3})`;ctx.fillRect(0,0,W,H)}
+  if(state==='play'){const k=tLeft/tMax;ctx.fillStyle='rgba(0,0,0,.4)';rr(16,12,W-32,10,5);ctx.fill();ctx.fillStyle=k<.3?'#c23b2c':'#e3b04b';rr(16,12,(W-32)*k,10,5);ctx.fill()}
+  requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>
