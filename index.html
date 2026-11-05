@@ -168,6 +168,15 @@ a.act{text-decoration:none;display:inline-block}
 .bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px;max-height:150px;overflow-y:auto;padding:2px}
 .bgrid .pbtn{font-family:var(--display);font-size:22px;padding:6px 0}
 .bhun{text-align:center;font-size:16px}.bhun b{font-family:var(--display);font-size:22px;margin-right:4px}
+.talk{right:max(16px,env(safe-area-inset-right,0px));bottom:calc(130px + env(safe-area-inset-bottom,0px));width:min(330px,calc(100% - 32px));background:var(--hanji);border:1px solid var(--edge);border-radius:6px;box-shadow:0 10px 30px rgba(60,40,20,.25);padding:10px;display:grid;gap:8px;z-index:7}
+.tsay{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tsay button,.temo button{appearance:none;border:1px solid var(--edge);background:#fffaf0;border-radius:999px;padding:9px 8px;font:inherit;font-size:15px;cursor:pointer;color:var(--ink)}
+.tsay button small{color:var(--ink-soft);font-size:11px;margin-right:4px}
+.temo{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.temo button{font-size:22px;padding:6px 0}
+.tsay button:hover,.temo button:hover{border-color:var(--jjok)}
+.tsay button:focus-visible,.temo button:focus-visible{outline:2px solid var(--jjok);outline-offset:2px}
+@media (max-width:640px){.mv{width:62px;height:62px}.mv .ei{font-size:24px}.mv b{font-size:11px}}
+.mv[aria-expanded="true"]{background:var(--gold);border-color:var(--gold)}
 .toast{position:absolute;left:50%;top:calc(150px + env(safe-area-inset-top,0px));transform:translate(-50%,-50%) scale(.96);opacity:0;z-index:9;pointer-events:none;background:var(--hanji);border:1px solid var(--edge);border-left:6px solid var(--juchil);
   padding:14px 22px;border-radius:3px;font-family:var(--display);font-size:19px;box-shadow:0 10px 30px rgba(60,40,20,.25);transition:opacity .35s,transform .35s;max-width:calc(100% - 40px);text-align:center}
 .toast small{display:block;font-family:var(--body);font-size:13px;color:var(--ink-soft);margin-top:4px}
@@ -198,9 +207,13 @@ a.act{text-decoration:none;display:inline-block}
   <button class="hud act" id="act" hidden></button>
   <a class="hud act" id="actLink" href="#" target="_blank" rel="noopener" hidden></a>
   <div class="hud joy" id="joy" aria-hidden="true"><i id="knob"></i></div>
-  <div class="hud help">방향키·WASD 걷기 · Shift 달리기 · Space 점프 · 화면 끌어 시점 돌리기 · E 들어가기</div>
+  <div class="hud help">방향키·WASD 걷기 · Shift 달리기 · Space 점프 · 1~6 말풍선 · 화면 끌어 시점 돌리기 · E 들어가기</div>
   <div class="toast" id="toast" role="status"></div>
   <div class="warp" id="warp" hidden aria-hidden="true"></div>
+  <div class="hud talk" id="talk" hidden role="dialog" aria-label="말풍선 고르기">
+    <div class="tsay" id="tsay"></div>
+    <div class="temo" id="temo"></div>
+  </div>
   <div class="medi" id="medi" hidden>
     <div class="mtop"><b>탁영정 · 물가 명상</b><span id="mediTime">1:00</span></div>
     <div id="mediTxt" class="mcenter"><div class="mcircle" id="mediCircle"></div><div class="mword" id="mediWord">들이쉬고</div><button class="pbtn" id="mediStop">그만하기</button></div>
@@ -208,6 +221,7 @@ a.act{text-decoration:none;display:inline-block}
       <label for="mediNote" class="sr">지금 마음</label><textarea id="mediNote" placeholder="예: 물소리를 들으니 머리가 가벼워졌다"></textarea><button class="pbtn main" id="mediOk">마치기 (붓 +1)</button></div>
   </div>
   <div class="hud moves">
+    <button class="mv" id="talkBtn" aria-expanded="false" aria-controls="talk" title="말풍선 (숫자 1~6)"><span class="ei" aria-hidden="true">💬</span><b>말하기</b></button>
     <button class="mv" id="runBtn" aria-pressed="false" title="달리기 (Shift)"><span class="ei" aria-hidden="true">🏃</span><b>달리기</b></button>
     <button class="mv" id="jumpBtn" title="점프 (Space)"><span class="ei" aria-hidden="true">🤸</span><b>점프</b></button>
   </div>
@@ -1301,12 +1315,12 @@ function updPeer(id,v){let P=peerMap.get(id);if(!P){addPeer(id,v);return;}
   const g=peerGrade(v);if(g!==P.g){const pos=P.body.position.clone(),r=P.body.rotation.y;scene.remove(P.body);P.body=buildChar(g);P.body.rotation.order="YXZ";P.body.position.copy(pos);P.body.rotation.y=r;scene.add(P.body);P.g=g;}
   const key=(v.nick||"")+(v.ava||"")+(v.col||"");if(key!==P.key){P.tag.material.map.dispose();P.tag.material.map=tagTexFor(v.nick,v.ava,v.col);P.tag.material.needsUpdate=true;P.key=key;}
   P.x=ENC.dx(v.x||0);P.z=ENC.dz(v.z||0);P.yaw=v.yaw||0;if((v.jp||0)!==P.jp){P.jp=v.jp||0;if(P.jumpH===0)P.jumpV=7.2;}}
-function delPeer(id){const P=peerMap.get(id);if(!P)return;scene.remove(P.body);scene.remove(P.tag);P.tag.material.map.dispose();peerMap.delete(id);}
+function delPeer(id){const P=peerMap.get(id);if(!P)return;scene.remove(P.body);scene.remove(P.tag);if(P.bubble)scene.remove(P.bubble);P.tag.material.map.dispose();peerMap.delete(id);}
 function setCount(){const el=$("peopleN");if(!el)return;el.textContent=peerMap.size+1;$("peopleChip").hidden=false;}
 function startMulti(){if(roomApi||!(window.SR_CLASS&&window.SR_CLASS.ok&&window.claude&&window.claude.use))return;
   window.claude.use("room").then(r=>{if(!r)return;roomApi=r;
     r.onPeers(ch=>{(ch.left||[]).forEach(p=>delPeer(p.peer));[...(ch.joined||[]),...(ch.updated||[])].forEach(p=>{if(!p.isMe)updPeer(p.peer,p.presence||{});});setCount();});
-    r.onConnection(ok=>{$("peopleChip").classList.toggle("off",!ok);});
+    r.onConnection(ok=>{$("peopleChip").classList.toggle("off",!ok);});listenTalk(r);
     sendPresence(true);}).catch(e=>console.warn("함께 접속을 시작하지 못했어요",e));}
 function sendPresence(force){if(!roomApi||!S.nick)return;const now=performance.now();
   const yaw=Math.atan2(Math.sin(player.rotation.y),Math.cos(player.rotation.y));
@@ -1374,6 +1388,36 @@ function mediTick(now,dt){if(!medi)return;const el=now-medi.t0,left=Math.max(0,m
   const s=Math.ceil(left/1000);if(s!==medi.last){medi.last=s;$("mediTime").textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
   if(left<=0)endMedi(false);}
 
+
+/* ================= 말풍선 (정해진 말과 이모티콘) ================= */
+const SAYS=["안녕하신가!","같이 공부하세","고맙소","장하다!","이리 와 보게","먼저 가겠소"];
+const EMOS=["👋","👍","❤️","😂","👏","🙇"];
+function bubbleTex(text,emoji){const cv=document.createElement("canvas");cv.width=512;cv.height=200;const c=cv.getContext("2d");
+  c.font=emoji?"120px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif":"bold 58px 'Gowun Dodum',sans-serif";
+  const w=emoji?190:Math.min(496,c.measureText(text).width+70),x=(512-w)/2,hh=emoji?150:110,y=emoji?8:30;
+  c.fillStyle="#fffdf6";c.strokeStyle="#3a2f27";c.lineWidth=6;c.beginPath();if(c.roundRect)c.roundRect(x,y,w,hh,emoji?60:44);else c.rect(x,y,w,hh);c.fill();c.stroke();
+  c.beginPath();c.moveTo(236,y+hh-3);c.lineTo(256,y+hh+34);c.lineTo(280,y+hh-3);c.closePath();c.fill();c.beginPath();c.moveTo(236,y+hh);c.lineTo(256,y+hh+34);c.lineTo(280,y+hh);c.stroke();
+  c.fillStyle="#2a231e";c.textAlign="center";c.textBaseline="middle";c.fillText(text,256,y+hh/2+(emoji?6:3),w-40);
+  const t=new THREE.CanvasTexture(cv);t.encoding=THREE.sRGBEncoding;return t;}
+function makeBubble(text,emoji){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:bubbleTex(text,emoji),depthWrite:false,depthTest:false,transparent:true}));sp.renderOrder=11;sp.scale.set(2.6,1.02,1);scene.add(sp);return sp;}
+let myBubble=null;
+function setBubble(holder,text,emoji){if(holder.bubble){scene.remove(holder.bubble);holder.bubble.material.map.dispose();holder.bubble.material.dispose();}holder.bubble=makeBubble(text,emoji);holder.bubbleT=performance.now()+(emoji?3200:4500);}
+const meHolder={};
+function say(kind,i){const text=kind==="say"?SAYS[i]:EMOS[i];setBubble(meHolder,text,kind==="emote");SFX.open();
+  if(roomApi){try{(kind==="say"?roomApi.emit("say",{i}):roomApi.emit("emote",{e:i})).catch(()=>{});}catch(e){}}}
+$("tsay").innerHTML=SAYS.map((t,i)=>'<button data-i="'+i+'"><small>'+(i+1)+'</small>'+t+'</button>').join("");
+$("temo").innerHTML=EMOS.map((t,i)=>'<button data-e="'+i+'" aria-label="이모티콘 '+(i+1)+'">'+t+'</button>').join("");
+function talkOpen(v){$("talk").hidden=!v;$("talkBtn").setAttribute("aria-expanded",String(v));}
+$("talkBtn").addEventListener("click",e=>{talkOpen($("talk").hidden);if(e.detail>0)e.currentTarget.blur();});
+$("tsay").addEventListener("click",e=>{const b=e.target.closest("[data-i]");if(!b)return;say("say",+b.dataset.i);talkOpen(false);});
+$("temo").addEventListener("click",e=>{const b=e.target.closest("[data-e]");if(!b)return;say("emote",+b.dataset.e);talkOpen(false);});
+addEventListener("keydown",e=>{const tag=(e.target.tagName||"");if(panelOpen||tag==="INPUT"||tag==="TEXTAREA"||!$("entry").hidden)return;const n=parseInt(e.key,10);if(n>=1&&n<=6){say("say",n-1);talkOpen(false);}});
+function listenTalk(r){r.on("say",m=>{if(m.isMe)return;const P=peerMap.get(m.peer);if(P&&m.data&&SAYS[m.data.i])setBubble(P,SAYS[m.data.i],false);});
+  r.on("emote",m=>{if(m.isMe)return;const P=peerMap.get(m.peer);if(P&&m.data&&EMOS[m.data.e])setBubble(P,EMOS[m.data.e],true);});}
+function bubbleTick(now){const place=(H,x,y,z)=>{if(!H.bubble)return;if(now>H.bubbleT){scene.remove(H.bubble);H.bubble.material.map.dispose();H.bubble.material.dispose();H.bubble=null;return;}
+    const k=Math.min(1,(H.bubbleT-now)/300);H.bubble.material.opacity=k;H.bubble.position.set(x,y,z);};
+  place(meHolder,player.position.x,player.position.y+(S.grade>=4?3.05:2.55)+0.85,player.position.z);
+  peerMap.forEach(P=>place(P,P.body.position.x,P.body.position.y+(P.g>=4?3.05:2.55)+0.85,P.body.position.z));}
 /* ================= 루프 ================= */
 let near=null;
 function resize(){const w=canvas.clientWidth,hgt=canvas.clientHeight;renderer.setSize(w,hgt,false);camera.aspect=w/hgt;camera.fov=w/hgt<0.8?64:50;camera.updateProjectionMatrix();}
@@ -1439,7 +1483,7 @@ function loop(now){
   SFX.tick(dt,{water:Math.abs(player.position.x-riverX(player.position.z)),inside:panelOpen&&!medi,shrine:player.position.z<-22,horseDist:Math.hypot(player.position.x+8.7,player.position.z-56.2),horsePan:0});
   if((++frameN)%3===0)drawMini();
   updatePeers(dt);sendPresence(false);
-  nameTag.position.set(player.position.x,player.position.y+(S.grade>=4?3.05:2.55),player.position.z);
+  nameTag.position.set(player.position.x,player.position.y+(S.grade>=4?3.05:2.55),player.position.z);bubbleTick(performance.now());
   renderer.render(scene,camera);requestAnimationFrame(loop);
 }
 camera.position.set(0,6,73);
