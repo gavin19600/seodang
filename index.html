@@ -74,7 +74,7 @@ button{font:inherit}
 .panel header{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--edge);background:var(--hanji-deep);position:sticky;top:0;z-index:1}
 .panel header .ttl{font-family:var(--display);font-size:22px;font-weight:700}
 .panel header .sub{font-size:13px;color:var(--ink-soft)}
-.x{margin-left:auto;appearance:none;border:1px solid var(--edge);background:var(--hanji);border-radius:3px;padding:6px 12px;cursor:pointer}
+.x{white-space:nowrap;flex:none;margin-left:auto;appearance:none;border:1px solid var(--edge);background:var(--hanji);border-radius:3px;padding:6px 12px;cursor:pointer}
 .pb{padding:18px 20px 22px;display:grid;gap:14px}
 .pb p{margin:0;line-height:1.65}
 .big{font-family:var(--display);font-size:92px;line-height:1;text-align:center;color:var(--ink)}
@@ -165,6 +165,9 @@ a.act{text-decoration:none;display:inline-block}
 .mdone p{margin:0;text-align:center}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media (prefers-reduced-motion:reduce){.mcircle{transition:none}}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px;max-height:150px;overflow-y:auto;padding:2px}
+.bgrid .pbtn{font-family:var(--display);font-size:22px;padding:6px 0}
+.bhun{text-align:center;font-size:16px}.bhun b{font-family:var(--display);font-size:22px;margin-right:4px}
 .toast{position:absolute;left:50%;top:calc(150px + env(safe-area-inset-top,0px));transform:translate(-50%,-50%) scale(.96);opacity:0;z-index:9;pointer-events:none;background:var(--hanji);border:1px solid var(--edge);border-left:6px solid var(--juchil);
   padding:14px 22px;border-radius:3px;font-family:var(--display);font-size:19px;box-shadow:0 10px 30px rgba(60,40,20,.25);transition:opacity .35s,transform .35s;max-width:calc(100% - 40px);text-align:center}
 .toast small{display:block;font-family:var(--body);font-size:13px;color:var(--ink-soft);margin-top:4px}
@@ -317,6 +320,24 @@ const IDIOMS=[
 const YEONGJA=[["측(側) · 점","새가 몸을 기울여 내려앉듯 비스듬히 찍어요."],["늑(勒) · 가로획","말고삐를 당기듯 힘을 머금고 옆으로 그어요."],["노(努) · 세로획","활시위를 당기듯 곧게 내리그어요."],["적(趯) · 갈고리","세로획 끝에서 힘차게 튀어 올려요."],
  ["책(策) · 치침","채찍을 휘두르듯 짧게 위로 쳐 올려요."],["약(掠) · 긴 삐침","머리를 빗어 넘기듯 왼쪽 아래로 길게 빼요."],["탁(啄) · 짧은 삐침","새가 부리로 쪼듯 빠르고 짧게 빼요."],["책(磔) · 파임","오른쪽 아래로 눌렀다가 살며시 들어 빼요."]];
 
+const BRUSH_SETS=[
+ ["영자팔법","永"],
+ ["숫자","一二三四五六七八九十百千萬"],
+ ["자연","日月山水火木金土天地川石田雨雪風花草林"],
+ ["사람·몸","人大小子女父母兄弟口目耳手足心力"],
+ ["동물","牛馬羊犬鳥魚虫龍"],
+ ["방향·때","東西南北上下左右中內外前後春夏秋冬年時"],
+ ["학교·나라","學校敎室先生門家王民國軍長白靑韓寸"],
+ ["마음 덕목","孝善仁義禮智信忠友"],
+ ["8급 50자","敎校九國軍金南女年大東六萬母木門民白父北四山三生西先小水室十五王外月二人一日長弟中靑寸七土八學韓兄火"]
+];
+const BRUSH_HUN={"永":"길 영","一":"한 일","二":"두 이","三":"석 삼","四":"넉 사","五":"다섯 오","六":"여섯 륙","七":"일곱 칠","八":"여덟 팔","九":"아홉 구","十":"열 십","百":"일백 백","千":"일천 천","萬":"일만 만",
+ "日":"날 일","月":"달 월","山":"메 산","水":"물 수","火":"불 화","木":"나무 목","金":"쇠 금, 성 김","土":"흙 토","天":"하늘 천","地":"땅 지","川":"내 천","石":"돌 석","田":"밭 전","雨":"비 우","雪":"눈 설","風":"바람 풍","花":"꽃 화","草":"풀 초","林":"수풀 림",
+ "人":"사람 인","大":"큰 대","小":"작을 소","子":"아들 자","女":"계집 녀","父":"아비 부","母":"어미 모","兄":"형 형","弟":"아우 제","口":"입 구","目":"눈 목","耳":"귀 이","手":"손 수","足":"발 족","心":"마음 심","力":"힘 력",
+ "牛":"소 우","馬":"말 마","羊":"양 양","犬":"개 견","鳥":"새 조","魚":"물고기 어","虫":"벌레 충","龍":"용 룡",
+ "東":"동녘 동","西":"서녘 서","南":"남녘 남","北":"북녘 북","上":"윗 상","下":"아래 하","左":"왼 좌","右":"오른 우","中":"가운데 중","內":"안 내","外":"바깥 외","前":"앞 전","後":"뒤 후","春":"봄 춘","夏":"여름 하","秋":"가을 추","冬":"겨울 동","年":"해 년","時":"때 시",
+ "學":"배울 학","校":"학교 교","敎":"가르칠 교","室":"집 실","先":"먼저 선","生":"날 생","門":"문 문","家":"집 가","王":"임금 왕","民":"백성 민","國":"나라 국","軍":"군사 군","長":"긴 장","白":"흰 백","靑":"푸를 청","韓":"한국 한","寸":"마디 촌",
+ "孝":"효도 효","善":"착할 선","仁":"어질 인","義":"옳을 의","禮":"예도 례","智":"슬기 지","信":"믿을 신","忠":"충성 충","友":"벗 우"};
 /* ================= 저장 ================= */
 const KEY="seodang-v1";
 function freshState(){return {grade:0,brushes:0,thoughts:[],works:[],done:{},refl:{},name:""};}
@@ -1004,8 +1025,11 @@ const ROOMS={
   h('<div class="speech" id="ans">어서 오너라. 무엇이 궁금하더냐? 아래에서 물음을 골라 보거라.</div><div class="grid2" id="qs">'+QA.map((q,i)=>'<button class="pbtn" data-i="'+i+'">'+q.q+'</button>').join("")+'</div>'+
    '<p class="note">지금은 정해진 물음에 답해요. AI 훈장님과 자유롭게 묻고 답하는 기능은 다음 단계에서 붙일 수 있어요.</p>');
   pBody.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{const a=QA[+b.dataset.i].a;$("ans").textContent=a;speak(a,0.95);});},
- seoye(){setHead("동재 東齋 · 서예실","米字格 연습판에서 흐린 글자를 붓처럼 따라 써요");const pool=["永","人","山","木","日","月","水","火","口","雨","門","女"];let ch=pool[0];
-  h('<div class="tabs" id="pick">'+pool.map(c=>'<button class="pbtn'+(c===ch?' on':'')+'" data-c="'+c+'" style="font-family:var(--display);font-size:20px">'+c+'</button>').join("")+'</div>'+
+ seoye(){setHead("동재 東齋 · 서예실","米字格 연습판에서 흐린 글자를 붓처럼 따라 써요");let set=0,ch="永";
+  h('<div class="tabs" id="sets">'+BRUSH_SETS.map((b,i)=>'<button class="pbtn'+(i===0?' on':'')+'" data-s="'+i+'">'+b[0]+'</button>').join("")+'</div>'+
+   '<div class="bgrid" id="pick"></div>'+
+   '<div class="row" style="align-items:center"><label for="own" class="note">직접 쓸 한자</label><input type="text" id="own" maxlength="2" placeholder="예: 愛" style="width:5em;font-family:var(--display);font-size:20px;text-align:center"><button class="pbtn" id="ownGo">이 글자 쓰기</button><span class="note" id="ownMsg"></span></div>'+
+   '<div class="bhun" id="bhun"></div>'+
    '<div class="brushwrap"><canvas id="guide" width="600" height="600"></canvas><canvas id="ink" width="600" height="600"></canvas></div>'+
    '<p class="note" style="text-align:center">천천히 쓰면 획이 굵고, 빠르게 쓰면 가늘어져요.</p>'+
    '<div class="row"><button class="pbtn" id="clr">물로 지우기</button><button class="pbtn main" id="done">서첩에 담기 (붓 +1)</button></div>'+
@@ -1015,7 +1039,16 @@ const ROOMS={
     gc.moveTo(300,14);gc.lineTo(300,586);gc.moveTo(14,300);gc.lineTo(586,300);gc.moveTo(14,14);gc.lineTo(586,586);gc.moveTo(586,14);gc.lineTo(14,586);gc.stroke();gc.setLineDash([]);
     gc.fillStyle="rgba(120,100,80,.2)";gc.font="470px 'Gowun Batang',serif";gc.textAlign="center";gc.textBaseline="middle";gc.fillText(ch,300,320);};
   guide();document.fonts&&document.fonts.ready.then(guide);
-  pBody.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{ch=b.dataset.c;pBody.querySelectorAll("[data-c]").forEach(x=>x.classList.toggle("on",x===b));ic.clearRect(0,0,600,600);guide();});
+  const pick=$("pick");
+  const showHun=()=>{const hn=BRUSH_HUN[ch]||(HUN&&HUN[ch])||"";$("bhun").innerHTML='<b>'+ch+'</b>'+(hn?' '+hn:'');};
+  const setCh=c=>{ch=c;pick.querySelectorAll("[data-c]").forEach(x=>x.classList.toggle("on",x.dataset.c===ch));ic.clearRect(0,0,600,600);guide();showHun();};
+  const drawSet=()=>{pick.innerHTML=[...BRUSH_SETS[set][1]].map(c=>'<button class="pbtn'+(c===ch?' on':'')+'" data-c="'+c+'" title="'+(BRUSH_HUN[c]||'')+'">'+c+'</button>').join("");
+    pick.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>setCh(b.dataset.c));};
+  pBody.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{set=+b.dataset.s;pBody.querySelectorAll("[data-s]").forEach(x=>x.classList.toggle("on",x===b));drawSet();});
+  const CJK=/[\u3400-\u9fff\uf900-\ufaff]/;
+  $("ownGo").onclick=()=>{const v=[...$("own").value.trim()].find(c=>CJK.test(c));if(!v){$("ownMsg").textContent="한자 한 글자를 넣어 주세요";$("own").focus();return;}$("ownMsg").textContent="";setCh(v);};
+  $("own").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("ownGo").click();}});
+  drawSet();showHun();
   const inkC=$("ink");let last=null,wid=20;
   const pt=e=>{const r=inkC.getBoundingClientRect();return{x:(e.clientX-r.left)*600/r.width,y:(e.clientY-r.top)*600/r.height,t:performance.now()};};
   inkC.addEventListener("pointerdown",e=>{inkC.setPointerCapture(e.pointerId);last=pt(e);wid=26;ic.fillStyle="rgba(24,20,18,.9)";ic.beginPath();ic.arc(last.x,last.y,wid/2,0,Math.PI*2);ic.fill();});
