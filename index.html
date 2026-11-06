@@ -191,15 +191,18 @@ a.act{text-decoration:none;display:inline-block}
 .schcard b{font-family:var(--display);font-size:18px}
 table.rank td.rk{width:2.6em;text-align:center;font-variant-numeric:tabular-nums}table.rank .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 table.rank tr.me td{background:#f6dfa0}.myrank{background:#fffaf0;border:1px dashed var(--edge);border-radius:3px;padding:8px 12px;margin:0}
-.rankhud{top:calc(116px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));width:min(320px,calc(100% - 32px));max-height:min(60vh,520px);display:flex;flex-direction:column;background:rgba(246,239,225,.96);border:1px solid var(--edge);border-top:4px solid var(--juchil);border-radius:4px;box-shadow:0 8px 24px rgba(60,40,20,.22);z-index:6}
+.rankhud{top:calc(116px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));width:min(320px,calc(100% - 32px));max-height:calc(100dvh - 270px);display:flex;flex-direction:column;background:rgba(246,239,225,.96);border:1px solid var(--edge);border-top:4px solid var(--juchil);border-radius:4px;box-shadow:0 8px 24px rgba(60,40,20,.22);z-index:6}
 .rankhud[hidden]{display:none}
 .rhhead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px 6px}.rhhead b{font-family:var(--display);font-size:16px}
 .rhhead .live{font-family:var(--body,inherit);font-size:11px;color:#b5301f;font-weight:600;margin-left:4px;animation:lv 1.6s ease-in-out infinite}@keyframes lv{50%{opacity:.35}}
 .rhhead .pbtn{padding:4px 10px;font-size:13px}
-.rhbody{overflow-y:auto;padding:0 10px 10px;display:grid;gap:8px}
+.rhbody{overflow-y:auto;padding:0 10px 10px;display:grid;gap:10px}
+.rlv table.t td{padding:3px 4px!important;font-size:13px}.rlv .rk{width:26px}
+@media (min-width:860px){.rankhud{width:min(660px,calc(100% - 32px))}.rhbody{grid-template-columns:repeat(3,1fr);align-items:start}}
+.rlv h4{margin:2px 0 4px;font-family:var(--display);font-size:15px;color:#6e2219;border-bottom:1px solid var(--edge);padding-bottom:3px}
 .rhbody .tabs .pbtn{padding:4px 9px;font-size:13px}.rhbody table.t{font-size:13px}.rhbody table.t td,.rhbody table.t th{padding:5px 4px}.rhbody .myrank{font-size:13px;padding:6px 8px}
 .rankchip{border-color:#b5301f;border-width:2px;color:#6e2219;font-weight:700;top:calc(116px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px))}
-@media (max-width:640px){.rankhud,.rankchip{top:calc(150px + env(safe-area-inset-top,0px))}.rankhud{max-height:42vh}}
+@media (max-width:640px){.rankhud,.rankchip{top:calc(150px + env(safe-area-inset-top,0px))}.rankhud{max-height:calc(100dvh - 290px)}}
 .toast{position:absolute;left:50%;top:calc(150px + env(safe-area-inset-top,0px));transform:translate(-50%,-50%) scale(.96);opacity:0;z-index:9;pointer-events:none;background:var(--hanji);border:1px solid var(--edge);border-left:6px solid var(--juchil);
   padding:14px 22px;border-radius:3px;font-family:var(--display);font-size:19px;box-shadow:0 10px 30px rgba(60,40,20,.25);transition:opacity .35s,transform .35s;max-width:calc(100% - 40px);text-align:center}
 .toast small{display:block;font-family:var(--body);font-size:13px;color:var(--ink-soft);margin-top:4px}
@@ -1598,7 +1601,14 @@ function rankHTML(lv,hud){if(!PUB)return '<p class="note">학교 순위는 학�
   return html;}
 function bindRank(){pBody.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{const box=$("rankBox");if(box){box.innerHTML=rankHTML(b.dataset.rt);bindRank();}});}
 let hudTab=null,hudFold=false;
-function renderRankHud(){const box=$("rankHud");if(!box||box.hidden)return;$("rankHudBody").innerHTML=rankHTML(hudTab,true);box.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{hudTab=b.dataset.rt;renderRankHud();});}
+function rankAllHTML(){if(!PUB)return '<p class="note">학교 순위는 학생들이 쓰는 공개 사이트에서 모두 함께 쌓여요.</p>';rankStart();
+  if(RANK.err)return '<p class="note">학교 순위를 불러오지 못했어요. ('+esc(RANK.err)+')</p>';if(!RANK.ready)return '<p class="note">학교 순위를 불러오는 중…</p>';
+  return Object.keys(LEVELS).map(lv=>{const L=rankList(lv),mine=S.school&&S.school.level===lv?schoolKey(S.school):null,mi=mine?L.findIndex(x=>x.key===mine):-1;
+    const row=(x,i)=>'<tr class="'+(x.key===mine?'me':'')+'"><td class="rk">'+(i<3?["🥇","🥈","🥉"][i]:(i+1))+'</td><td>'+esc(x.name.replace(/등학교$/,"").replace(/학교$/,""))+'</td><td class="num">'+x.total+'점</td></tr>';
+    let h='<div class="rlv"><h4>'+LEVELS[lv].bu+'</h4>'+(L.length?'<table class="t rank">'+L.slice(0,10).map(row).join("")+'</table>':'<p class="note">아직 응시한 학교가 없어요. 첫 학교가 되어 보세요!</p>');
+    if(mine)h+=mi>=0?'<p class="myrank">우리 학교 <b>'+esc(S.school.name)+'</b> · <b>'+(mi+1)+'위</b> / '+L.length+'개교 · '+L[mi].total+'점</p>':'<p class="myrank">우리 학교 <b>'+esc(S.school.name)+'</b>는 아직 점수가 없어요.</p>';
+    return h+'</div>';}).join("");}
+function renderRankHud(){const box=$("rankHud");if(!box||box.hidden)return;$("rankHudBody").innerHTML=rankAllHTML();}
 function showRankHud(on){const box=$("rankHud"),chip=$("rankChip");if(on){rankStart();hudTab=hudTab||(S.school&&S.school.level)||"중";}box.hidden=!on;chip.hidden=!!on;if(on)renderRankHud();}
 function rankChanged(){renderRankHud();const box=$("rankBox");if(box&&!veil.hidden){box.innerHTML=rankHTML(rankTab);bindRank();}drawBangBoard();}
 function drawBangBoard(){if(EXAM.bangDraw)EXAM.bangDraw();}
