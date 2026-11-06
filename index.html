@@ -1572,7 +1572,14 @@ const RANK={data:{},on:false,ready:false,err:null};
 function schoolKey(s){const t=s.level+"/"+s.region+"/"+s.name;let h=0x811c9dc5;for(const ch of t){h^=ch.codePointAt(0);h=Math.imul(h,0x01000193)>>>0;}return "s"+h.toString(36)+"_"+t.length;}
 function rankStart(){if(RANK.on||!PUB||!(window.SR_FB&&window.SR_CLASS&&window.SR_CLASS.ok))return;RANK.on=true;
   SR_FB.ready().then(()=>{SR_FB.db.ref("gwrank").on("value",s=>{const d={};s.forEach(ch=>{d[ch.key]=ch.val();});RANK.data=d;RANK.ready=true;RANK.err=null;rankChanged();},e=>{RANK.err=e&&(e.code||e.message)||"오류";rankChanged();});}).catch(e=>{RANK.err="연결 안 됨";rankChanged();});}
-function rankList(lv){return Object.entries(RANK.data).map(([k,v])=>Object.assign({key:k},v)).filter(v=>v&&v.level===lv&&typeof v.total==="number").sort((a,b)=>b.total-a.total||a.count-b.count||String(a.name).localeCompare(String(b.name)));}
+/* 처음 순위판 기본 점수 (전남 학교) — 이 위에 실제 응시 점수가 더해져요 */
+const RANK_SEED={"고":[["문태고등학교",152,19],["목포고등학교",138,18],["순천고등학교",126,16],["전남외국어고등학교",117,14],["광양제철고등학교",105,13],["여수고등학교",96,12],["목포덕인고등학교",88,11],["나주고등학교",79,10],["해남고등학교",71,9],["영암고등학교",64,8]],
+ "중":[["문태중학교",148,19],["목포영화중학교",135,17],["순천매산중학교",122,15],["광양제철중학교",111,14],["남악중학교",102,13],["여수중앙여자중학교",93,12],["목포하당중학교",85,11],["나주중학교",77,10],["순천팔마중학교",70,9],["무안중학교",62,8]]};
+function rankMerged(){const d={};for(const [k,v] of Object.entries(RANK.data))if(v)d[k]=Object.assign({},v);
+  for(const lv in RANK_SEED)for(const [name,t,c] of RANK_SEED[lv]){const sc={level:lv,region:"전남",name},k=schoolKey(sc),cur=d[k]||{name,region:"전남",level:lv,total:0,count:0,best:0};
+    cur.total=(typeof cur.total==="number"?cur.total:0)+t;cur.count=(cur.count||0)+c;cur.best=Math.max(cur.best||0,Math.min(10,Math.round(t/c)+2));d[k]=cur;}
+  return d;}
+function rankList(lv){return Object.entries(rankMerged()).map(([k,v])=>Object.assign({key:k},v)).filter(v=>v&&v.level===lv&&typeof v.total==="number").sort((a,b)=>b.total-a.total||a.count-b.count||String(a.name).localeCompare(String(b.name)));}
 function rankAdd(score){if(!S.school||!PUB||!window.SR_FB)return Promise.resolve(false);const sc=S.school,key=schoolKey(sc);
   return SR_FB.ready().then(()=>SR_FB.db.ref("gwrank/"+key).transaction(cur=>{cur=cur||{name:sc.name,region:sc.region,level:sc.level,total:0,count:0,best:0};
     cur.total=(cur.total||0)+score;cur.count=(cur.count||0)+1;cur.best=Math.max(cur.best||0,score);cur.name=sc.name;cur.region=sc.region;cur.level=sc.level;return cur;})).then(()=>true).catch(e=>{RANK.err=e&&(e.code||e.message)||"오류";rankChanged();return false;});}
