@@ -194,10 +194,11 @@ table.rank tr.me td{background:#f6dfa0}.myrank{background:#fffaf0;border:1px das
 .rankhud{top:calc(116px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));width:min(320px,calc(100% - 32px));max-height:min(60vh,520px);display:flex;flex-direction:column;background:rgba(246,239,225,.96);border:1px solid var(--edge);border-top:4px solid var(--juchil);border-radius:4px;box-shadow:0 8px 24px rgba(60,40,20,.22);z-index:6}
 .rankhud[hidden]{display:none}
 .rhhead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px 6px}.rhhead b{font-family:var(--display);font-size:16px}
+.rhhead .live{font-family:var(--body,inherit);font-size:11px;color:#b5301f;font-weight:600;margin-left:4px;animation:lv 1.6s ease-in-out infinite}@keyframes lv{50%{opacity:.35}}
 .rhhead .pbtn{padding:4px 10px;font-size:13px}
 .rhbody{overflow-y:auto;padding:0 10px 10px;display:grid;gap:8px}
 .rhbody .tabs .pbtn{padding:4px 9px;font-size:13px}.rhbody table.t{font-size:13px}.rhbody table.t td,.rhbody table.t th{padding:5px 4px}.rhbody .myrank{font-size:13px;padding:6px 8px}
-.rankchip{top:calc(116px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px))}
+.rankchip{border-color:#b5301f;border-width:2px;color:#6e2219;font-weight:700;top:calc(116px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px))}
 @media (max-width:640px){.rankhud,.rankchip{top:calc(150px + env(safe-area-inset-top,0px))}.rankhud{max-height:42vh}}
 .toast{position:absolute;left:50%;top:calc(150px + env(safe-area-inset-top,0px));transform:translate(-50%,-50%) scale(.96);opacity:0;z-index:9;pointer-events:none;background:var(--hanji);border:1px solid var(--edge);border-left:6px solid var(--juchil);
   padding:14px 22px;border-radius:3px;font-family:var(--display);font-size:19px;box-shadow:0 10px 30px rgba(60,40,20,.25);transition:opacity .35s,transform .35s;max-width:calc(100% - 40px);text-align:center}
@@ -233,10 +234,10 @@ table.rank tr.me td{background:#f6dfa0}.myrank{background:#fffaf0;border:1px das
   <div class="toast" id="toast" role="status"></div>
   <div class="warp" id="warp" hidden aria-hidden="true"></div>
   <section class="hud rankhud" id="rankHud" hidden aria-label="학교 순위">
-    <div class="rhhead"><b>🏆 과거 학교 순위</b><button class="pbtn" id="rankFold">접기</button></div>
+    <div class="rhhead"><b>🏆 과거 학교 순위 <span class="live">● 실시간</span></b><button class="pbtn" id="rankFold">접기</button></div>
     <div class="rhbody" id="rankHudBody"></div>
   </section>
-  <button class="hud chip btn rankchip" id="rankChip" hidden>🏆 학교 순위</button>
+  <button class="hud chip btn rankchip" id="rankChip">🏆 과거 학교 순위</button>
   <div class="hud talk" id="talk" hidden role="dialog" aria-label="말풍선 고르기">
     <div class="tsay" id="tsay"></div>
     <div class="temo" id="temo"></div>
@@ -1118,8 +1119,8 @@ $("act").addEventListener("click",()=>{if(near)openPanel(near.id);});
 $("albumBtn").addEventListener("click",()=>openPanel("album"));
 $("mapBtn").addEventListener("click",()=>openPanel("map"));
 $("gamesBtn").addEventListener("click",()=>openPanel("games"));
-$("rankFold").addEventListener("click",()=>{hudFold=true;showRankHud(true);});
-$("rankChip").addEventListener("click",()=>{hudFold=false;showRankHud(true);});
+$("rankFold").addEventListener("click",()=>showRankHud(false));
+$("rankChip").addEventListener("click",()=>{SFX.open();showRankHud(true);});
 $("mini").addEventListener("click",()=>openPanel("map"));
 function closePanel(){veil.hidden=true;panelOpen=false;try{speechSynthesis.cancel();}catch(e){}canvas.focus&&canvas.focus();if(pendingGrade!=null){const g=pendingGrade;pendingGrade=null;setTimeout(()=>promoteTo(g),300);}}
 function setHead(t,s){$("pTitle").textContent=t;$("pSub").textContent=s||"";}
@@ -1598,7 +1599,7 @@ function rankHTML(lv,hud){if(!PUB)return '<p class="note">학교 순위는 학�
 function bindRank(){pBody.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{const box=$("rankBox");if(box){box.innerHTML=rankHTML(b.dataset.rt);bindRank();}});}
 let hudTab=null,hudFold=false;
 function renderRankHud(){const box=$("rankHud");if(!box||box.hidden)return;$("rankHudBody").innerHTML=rankHTML(hudTab,true);box.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{hudTab=b.dataset.rt;renderRankHud();});}
-function showRankHud(on){const box=$("rankHud"),chip=$("rankChip");if(on){rankStart();hudTab=hudTab||(S.school&&S.school.level)||"중";box.hidden=hudFold;chip.hidden=!hudFold;renderRankHud();}else{box.hidden=true;chip.hidden=true;}}
+function showRankHud(on){const box=$("rankHud"),chip=$("rankChip");if(on){rankStart();hudTab=hudTab||(S.school&&S.school.level)||"중";}box.hidden=!on;chip.hidden=!!on;if(on)renderRankHud();}
 function rankChanged(){renderRankHud();const box=$("rankBox");if(box&&!veil.hidden){box.innerHTML=rankHTML(rankTab);bindRank();}drawBangBoard();}
 function drawBangBoard(){if(EXAM.bangDraw)EXAM.bangDraw();}
 
@@ -1729,7 +1730,7 @@ function loop(now){
   let nb=null,nd=2.4;spots.forEach(s=>{const d=Math.hypot(player.position.x-s.x,player.position.z-s.z);if(d<nd){nd=d;nb=s;}});
   if(nb!==near){near=nb;const a=$("act"),al=$("actLink");a.hidden=true;al.hidden=true;if(near){const el=near.url?al:a;if(near.url){al.href=near.url;al.target=(PUB&&!near.ext)?"_self":"_blank";}el.hidden=false;el.innerHTML=near.act+" · "+near.name+'<small>E</small>';}}
   if(!portalBusy&&!panelOpen){const f=portalLocal(player.position.x,player.position.z);if(portalPrev&&Math.abs(f.lx)<PORTAL.w&&portalPrev.lz>0.55&&f.lz<=0.55&&f.lz>-0.6)startPortal(false);portalPrev=f;}
-  const zn=zoneName(player.position);if(zn!==lastZone){const wasEx=lastZone==="춘당대 과거시험장",isEx=zn==="춘당대 과거시험장";lastZone=zn;$("where").textContent=zn;if(isEx!==wasEx){if(isEx)hudFold=false;showRankHud(isEx);if(isEx)SFX.open();}}
+  const zn=zoneName(player.position);if(zn!==lastZone){const wasEx=lastZone==="춘당대 과거시험장",isEx=zn==="춘당대 과거시험장";lastZone=zn;$("where").textContent=zn;if(isEx!==wasEx){showRankHud(isEx);if(isEx)SFX.open();}}
   // 카메라
   const tx=player.position.x,tz=player.position.z;
   const ty=player.position.y;let cd=dist;
