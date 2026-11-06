@@ -1041,8 +1041,9 @@ const EXAM={x:-48,z:6};
   taken.forEach((k,i)=>{const st=seats[k];const n=buildChar(i%3);n.position.set(st.x,-0.42,st.z+0.25);n.rotation.y=Math.PI;n.scale.setScalar(0.95);scene.add(n);
     const ar=n.userData.arms;if(ar){ar[0].rotation.x=-1.2;ar[1].rotation.x=-1.2;}
     gameAnim.push(t=>{n.rotation.z=Math.sin(t*0.8+i)*0.03;});});
-  const mySeat=seats[11];EXAM.seat=mySeat;
-  spots.push({id:"exam",name:"응시 자리",act:"자리에 앉아 과거 보기",x:mySeat.x,z:mySeat.z+1.2});
+  // 빈자리는 모두 응시 자리 (가장 가까운 빈자리에 앉아요)
+  EXAM.free=seats.filter((st,k)=>!taken.includes(k));EXAM.seat=EXAM.free[0];
+  EXAM.free.forEach((st,i)=>spots.push({id:"exam",name:"응시 자리",act:"빈자리에 앉아 과거 보기",x:st.x,z:st.z+1.2,noMap:i>0,seat:st}));
   spots.push({id:"examBang",name:"방(榜) · 급제자 명단",act:"방 보기",x:X+13.3,z:Z0+10});
   // 방 붙이는 판
   (function(){const g=new THREE.Group();g.position.set(X+15.2,0,Z0+10);g.rotation.y=-Math.PI/2;scene.add(g);for(const s of[-1,1])mesh(new THREE.CylinderGeometry(0.08,0.09,2.6,6),M(0x5a3a24),s*1.1,1.3,0,g);
@@ -1295,7 +1296,7 @@ ROOMS.map=function(){setHead("향교 지도","전학후묘(前學後廟): 앞에
   h('<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start"><canvas id="bigmap" width="440" height="413" style="width:240px;max-width:100%;height:auto;border:1px solid var(--edge)"></canvas>'+
     '<div style="display:grid;gap:6px;flex:1;min-width:180px">'+spots.map((s,i)=>'<button class="pbtn" data-go="'+i+'">'+s.name+'</button>').join("")+'<button class="pbtn" data-go="gate">홍살문 (입구)</button></div></div>');
   const bc=$("bigmap").getContext("2d");const T=drawMap(bc,440,413);bc.font="bold 20px 'Gowun Dodum',sans-serif";bc.textAlign="center";
-  spots.forEach(s=>{const x=T.X(s.x),z=T.Z(s.z);bc.fillStyle="#b23a2c";bc.beginPath();bc.arc(x,z,6,0,Math.PI*2);bc.fill();const nm=s.name.split(" · ")[0];bc.lineWidth=4;bc.strokeStyle="rgba(246,239,225,.95)";bc.strokeText(nm,x,z-11);bc.fillStyle="#2a231e";bc.fillText(nm,x,z-11);});
+  spots.forEach(s=>{if(s.noMap)return;const x=T.X(s.x),z=T.Z(s.z);bc.fillStyle="#b23a2c";bc.beginPath();bc.arc(x,z,6,0,Math.PI*2);bc.fill();const nm=s.name.split(" · ")[0];bc.lineWidth=4;bc.strokeStyle="rgba(246,239,225,.95)";bc.strokeText(nm,x,z-11);bc.fillStyle="#2a231e";bc.fillText(nm,x,z-11);});
   bc.fillStyle="#2d5a86";bc.beginPath();bc.arc(T.X(player.position.x),T.Z(player.position.z),8,0,Math.PI*2);bc.fill();
   pBody.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{closePanel();if(b.dataset.go==="gate"){teleport(0,60,Math.PI);return;}const s=spots[+b.dataset.go];
     const dx=s.x,dz=s.z;teleport(dx,dz,null);});};
@@ -1640,7 +1641,8 @@ ROOMS.exam=function(){if(!S.school){schoolStep(1);return;}const sc=S.school,best
     '<p><b>학교 순위</b></p><div id="rankBox">'+rankHTML(sc.level)+'</div>');
   bindRank();$("exStart").onclick=startExam;$("chSch").onclick=()=>schoolStep(1);};
 function startExam(){SFX.drum();EX={qs:makeExam(S.school.level),i:0,picks:[],total:300000,end:Date.now()+300000,done:false,level:S.school.level};
-  const sp=EXAM.seat;if(sp){player.position.set(sp.x,-0.42,sp.z+0.25);player.rotation.y=Math.PI;}showQ();}
+  let sp=EXAM.seat;if(EXAM.free){let bd=1e9;for(const st of EXAM.free){const d=Math.hypot(player.position.x-st.x,player.position.z-st.z);if(d<bd){bd=d;sp=st;}}}
+  if(sp){EXAM.seat=sp;player.position.set(sp.x,-0.42,sp.z+0.25);player.rotation.y=Math.PI;}showQ();}
 function showQ(){const q=EX.qs[EX.i];
   h('<div class="exhead"><span>'+LEVELS[EX.level].bu+' · 제 '+(EX.i+1)+' 문 · '+q.kind+'</span><span id="exTime">5:00</span></div><div class="exbar"><i id="exBar"></i></div>'+
     '<div class="exbig'+(q.small?' sm':'')+'">'+q.big+(q.sub?'<div class="eum">'+q.sub+'</div>':'')+'</div><p style="text-align:center"><b>'+q.q+'</b></p>'+
