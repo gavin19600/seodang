@@ -55,7 +55,7 @@ body{background:var(--sky);color:var(--ink);font-family:var(--body);overflow:hid
 button{font:inherit}
 .chip.btn{cursor:pointer}
 .help{bottom:calc(10px + env(safe-area-inset-bottom,0px));right:max(16px,env(safe-area-inset-right,0px));font-size:12px;background:rgba(246,239,225,.82);padding:4px 10px;border-radius:2px;pointer-events:none}
-.mini{bottom:calc(16px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));width:120px;height:157px;border:1px solid var(--edge);border-radius:3px;box-shadow:0 2px 10px rgba(60,40,20,.18);cursor:pointer}
+.mini{bottom:calc(16px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));width:120px;height:113px;border:1px solid var(--edge);border-radius:3px;box-shadow:0 2px 10px rgba(60,40,20,.18);cursor:pointer}
 @media (max-width:640px){.mini{display:none}}
 .act{left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--juchil);color:#fbefe3;border:0;border-radius:3px;
   padding:12px 22px;font-size:16px;font-weight:700;box-shadow:0 6px 18px rgba(120,30,20,.35);cursor:pointer;white-space:nowrap}
@@ -177,6 +177,13 @@ a.act{text-decoration:none;display:inline-block}
 .tsay button:focus-visible,.temo button:focus-visible{outline:2px solid var(--jjok);outline-offset:2px}
 @media (max-width:640px){.mv{width:62px;height:62px}.mv .ei{font-size:24px}.mv b{font-size:11px}}
 .mv[aria-expanded="true"]{background:var(--gold);border-color:var(--gold)}
+.exhead{display:flex;justify-content:space-between;font-size:14px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.exbar{height:8px;background:#e9dfc8;border-radius:4px;overflow:hidden}.exbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#b23a2c,#d8b35a)}
+.exbig{font-family:var(--display);font-size:68px;text-align:center;line-height:1.15}.exbig.sm{font-size:30px;letter-spacing:.12em}
+.exopts{display:grid;gap:8px}.exopts .pbtn{text-align:left;padding:11px 14px}.exopts .pbtn small{color:var(--juchil);margin-right:4px}
+.exopts.han{grid-template-columns:1fr 1fr}.exopts.han .pbtn{font-family:var(--display);font-size:30px;text-align:center}
+.exres{text-align:center;padding:10px 0}.exstamp{display:inline-block;font-family:var(--display);font-size:46px;font-weight:700;padding:8px 22px;border:5px solid currentColor;border-radius:6px;transform:rotate(-6deg)}
+.exres.pass .exstamp{color:var(--juchil)}.exres.fail .exstamp{color:#7a7266}
 .toast{position:absolute;left:50%;top:calc(150px + env(safe-area-inset-top,0px));transform:translate(-50%,-50%) scale(.96);opacity:0;z-index:9;pointer-events:none;background:var(--hanji);border:1px solid var(--edge);border-left:6px solid var(--juchil);
   padding:14px 22px;border-radius:3px;font-family:var(--display);font-size:19px;box-shadow:0 10px 30px rgba(60,40,20,.25);transition:opacity .35s,transform .35s;max-width:calc(100% - 40px);text-align:center}
 .toast small{display:block;font-family:var(--body);font-size:13px;color:var(--ink-soft);margin-top:4px}
@@ -203,7 +210,7 @@ a.act{text-decoration:none;display:inline-block}
     <button class="chip btn" id="albumBtn">서첩</button>
   </div>
   <div class="hud where" id="where">향교 밖</div>
-  <canvas class="hud mini" id="mini" width="240" height="313" aria-label="향교 지도, 누르면 크게 보기"></canvas>
+  <canvas class="hud mini" id="mini" width="240" height="225" aria-label="향교 지도, 누르면 크게 보기"></canvas>
   <button class="hud act" id="act" hidden></button>
   <a class="hud act" id="actLink" href="#" target="_blank" rel="noopener" hidden></a>
   <div class="hud joy" id="joy" aria-hidden="true"><i id="knob"></i></div>
@@ -603,7 +610,7 @@ function pine(x,z,s,y){y=y||0;const g=new THREE.Group();g.position.set(x,y,z);g.
   colliders.push({x,z,r:0.5*s});mapItems.push({k:"c",x,z,r:1.5*s,c:"#3a6b44"});}
 [[-23,-44,1.2],[23,-44,1.3],[-23,-29,1],[23,-29,1.1]].forEach(p=>pine(p[0],p[1],p[2],TER_Y));
 [[24,42,1.1],[-23,41,1.2],[-22,18,1],[22,18,1],[-23,-17,0.9],[23,-17,0.9]].forEach(p=>pine(p[0],p[1],p[2]));
-[[-12,60,1.4],[12,62,1.5],[-20,66,1.3],[22,58,1.2],[-34,20,1.6],[58,-8,1.5],[-36,-30,1.7],[58,-46,1.6]].forEach(p=>pine(p[0],p[1],p[2]));
+[[-12,60,1.4],[12,62,1.5],[-20,66,1.3],[22,58,1.2],[-72,12,1.6],[58,-8,1.5],[-36,-30,1.7],[58,-46,1.6]].forEach(p=>pine(p[0],p[1],p[2]));
 
 /* 반수 연못 (네모난 못에 둥근 섬) */
 (function(){const x=10,z=40;
@@ -939,7 +946,7 @@ function buildChar(gi){
 function addBeard(G){const w=M(0xe9e6df);const b=mesh(new THREE.ConeGeometry(0.1,0.32,10),w,0,1.36,0.2,G);b.rotation.x=Math.PI+0.25;
   for(const x of[-0.06,0.06]){const m=mesh(new THREE.BoxGeometry(0.1,0.025,0.02),w,x,1.5,0.265,G);m.rotation.z=x>0?-0.4:0.4;}}
 
-function makePlayer(g){const p=buildChar(g);p.rotation.order="YXZ";return p;}
+function makePlayer(g){const p=buildChar(g);p.rotation.order="YXZ";if(S.ash)addAsh(p,g);return p;}
 let player=makePlayer(S.grade);player.position.set(0,0,63);player.rotation.y=Math.PI;scene.add(player);
 function elder(x,z,face){const n=buildChar(4);n.traverse(o=>{if(o.material&&o.material.color&&o.material.color.getHex()===0xf7f5ef){o.material=o.material.clone();o.material.color.setHex(0xd9d3c6);}});
   addBeard(n);n.position.set(x,heightAt(x,z),z);n.rotation.y=face;n.scale.setScalar(1.05);scene.add(n);colliders.push({x,z,r:0.5});return n;}
@@ -949,6 +956,86 @@ const jegwan=elder(-2.8,-29.4,0);
 const friends=[];
 [[3.6,2],[5.8,1],[8,2]].forEach(q=>{desk(q[0],2.4);const f=buildChar(q[1]);f.position.set(q[0],-0.42,3.15);f.rotation.y=Math.PI;f.scale.setScalar(0.95);f.userData.by=-0.42;scene.add(f);friends.push(f);colliders.push({x:q[0],z:2.8,r:0.8});});
 [[-9.6,14,0,0.5],[-8.4,15.2,1,-2.4]].forEach(q=>{const f=buildChar(q[2]);f.position.set(q[0],0,q[1]);f.rotation.y=q[3];f.scale.setScalar(0.92);f.userData.by=0;scene.add(f);friends.push(f);colliders.push({x:q[0],z:q[1],r:0.5});});
+
+/* ================= 춘당대 과거시험장 (서쪽 담장 밖) ================= */
+function addAsh(G,g){// 어사화: 갓 뒤에서 꽂아 넘긴 종이꽃 두 줄기
+  const headY=1.58,top=g>=4?0.55:g>=2?0.52:0.35;const cols=[0xe0507a,0xf2c230,0x4a86c8,0xf3efe6,0x8f6bd0];
+  for(const sx of[-1,1]){const pts=[new THREE.Vector3(sx*0.06,headY+top,-0.05),new THREE.Vector3(sx*0.12,headY+top+0.55,-0.25),new THREE.Vector3(sx*0.2,headY+top+0.62,-0.75),new THREE.Vector3(sx*0.26,headY+top+0.2,-1.15)];
+    const cur=new THREE.CatmullRomCurve3(pts);const tube=new THREE.Mesh(new THREE.TubeGeometry(cur,24,0.018,5,false),M(0x2f5a3a));tube.castShadow=true;G.add(tube);
+    for(let i=1;i<=14;i++){const p=cur.getPoint(i/15);const f=new THREE.Mesh(new THREE.IcosahedronGeometry(0.075,0),M(cols[(i+(sx>0?2:0))%cols.length],{flatShading:true}));f.position.copy(p);f.position.x+=sx*0.03;f.castShadow=true;G.add(f);}}
+  return G;}
+const EXAM={x:-48,z:6};
+(function(){const X=EXAM.x,Z=EXAM.z,X0=X-17,X1=X+17,Z0=Z-24,Z1=Z+26;
+  const yardM=new THREE.MeshStandardMaterial({map:dirtTex(10,"#c9b48a"),roughness:1});
+  const yd=mesh(new THREE.PlaneGeometry(X1-X0,Z1-Z0),yardM,X,0.011,(Z0+Z1)/2);yd.rotation.x=-Math.PI/2;yd.castShadow=false;
+  mapItems.push({k:"r",x0:X0,x1:X1,z0:Z0,z1:Z1,c:"#cdb68a"});
+  wallSeg(X0,Z0,X1,Z0,2);wallSeg(X0,Z0,X0,Z1,2);wallSeg(X1,Z0,X1,Z1,2);wallSeg(X0,Z1,X-3.2,Z1,2);wallSeg(X+3.2,Z1,X1,Z1,2);
+  // 정문 科場
+  (function(){const g=new THREE.Group();g.position.set(X,0,Z1);scene.add(g);const pil=M(0x8c2f24);
+    for(const s of[-1,1]){mesh(new THREE.CylinderGeometry(0.2,0.22,4.2,12),pil,s*2.9,2.1,0,g);mesh(new THREE.CylinderGeometry(0.34,0.38,0.35,10),M(0x8f8a80),s*2.9,0.17,0,g);colliders.push({x:X+s*2.9,z:Z1,r:0.35});}
+    mesh(new THREE.BoxGeometry(6.4,0.36,1.0),M(0x3f7a6b),0,4.2,0,g);const rf=roofPrism(7.4,2.6,1.3);rf.position.set(0,4.35,0);rf.rotation.y=Math.PI/2;g.add(rf);
+    mesh(new THREE.BoxGeometry(7,0.24,0.3),M(0x2f3338),0,5.68,0,g);
+    const p=mesh(new THREE.PlaneGeometry(2.4,0.8),new THREE.MeshStandardMaterial({map:labelTex("科場",{size:96,bg:"#6e2219",line:"#d8b35a",fg:"#f3e4b5"}),roughness:.9}),0,3.6,0.52,g);p.castShadow=false;
+    floatSign("춘당대 과거시험장",X,6.8,Z1,true);})();
+  // 시관석 春塘臺
+  const dais=hall({x:X,z:Z0+5.5,w:14,d:5.5,sign:"春塘臺",bays:5,rh:3.2});hallBox(dais,14,5.5,"#7b6450");
+  for(let i=0;i<4;i++)mesh(new THREE.BoxGeometry(4,0.2*(i+1),0.6),M(0x9b9488),X,0.1*(i+1),Z0+9.6-i*0.4);
+  // 시관 두 분
+  [[-3,0],[3,4]].forEach(q=>{const n=buildChar(q[1]);n.traverse(o=>{if(o.material&&o.material.color&&o.material.color.getHex()===0xf7f5ef){o.material=o.material.clone();o.material.color.setHex(0xb23a2c);}});addBeard(n);n.position.set(X+q[0],0.86,Z0+6.4);scene.add(n);});
+  // 현제판 (시제를 거는 판)
+  const boardCv=document.createElement("canvas");boardCv.width=768;boardCv.height=512;const bctx=boardCv.getContext("2d");const boardTex=new THREE.CanvasTexture(boardCv);boardTex.encoding=THREE.sRGBEncoding;
+  window.__drawExamBoard=function(t1,t2){const c=bctx;c.fillStyle="#f3ead2";c.fillRect(0,0,768,512);c.strokeStyle="#6e2219";c.lineWidth=14;c.strokeRect(10,10,748,492);
+    c.fillStyle="#6e2219";c.font="bold 56px 'Gowun Batang',serif";c.textAlign="center";c.textBaseline="middle";c.fillText("試 題",384,82);
+    c.fillStyle="#1f1a15";c.font="bold 150px 'Gowun Batang',serif";c.fillText(t1,384,260);c.font="bold 40px 'Gowun Dodum',sans-serif";c.fillStyle="#4a4038";c.fillText(t2,384,420);boardTex.needsUpdate=true;};
+  window.__drawExamBoard("孝","오늘의 시제 · 효도");document.fonts&&document.fonts.ready.then(()=>window.__drawExamBoard("孝","오늘의 시제 · 효도"));
+  const bg=new THREE.Group();bg.position.set(X-9.5,0,Z0+11);bg.rotation.y=0.35;scene.add(bg);
+  for(const s of[-1,1])mesh(new THREE.CylinderGeometry(0.12,0.14,4.4,8),M(0x5a3a24),s*2.1,2.2,0,bg);
+  mesh(new THREE.BoxGeometry(4.0,2.7,0.12),[M(0x5a3a24),M(0x5a3a24),M(0x5a3a24),M(0x5a3a24),new THREE.MeshStandardMaterial({map:boardTex,roughness:.9}),M(0x5a3a24)],0,2.9,0,bg);
+  const rf2=roofPrism(4.8,0.9,0.5);rf2.position.set(0,4.3,0);rf2.rotation.y=Math.PI/2;bg.add(rf2);
+  colliders.push({x:X-9.5-2,z:Z0+11-0.7,r:0.3});colliders.push({x:X-9.5+2,z:Z0+11+0.7,r:0.3});
+  // 큰 북
+  (function(){const g=new THREE.Group();g.position.set(X+9.5,0,Z0+11);g.rotation.y=-0.4;scene.add(g);
+    for(const s of[-1,1]){const l=mesh(new THREE.CylinderGeometry(0.07,0.07,2.4,6),M(0x5a3a24),s*0.9,1.1,0,g);l.rotation.z=s*0.2;}
+    const dr=mesh(new THREE.CylinderGeometry(0.85,0.85,1.0,24),M(0xb23a2c),0,2.0,0,g);dr.rotation.z=Math.PI/2;
+    for(const s of[-1,1]){const sk=mesh(new THREE.CylinderGeometry(0.86,0.86,0.04,24),M(0xf1e6c8),s*0.52,2.0,0,g);sk.rotation.z=Math.PI/2;}
+    const tg=canvasTex(128,128,(c)=>{c.fillStyle="#f1e6c8";c.fillRect(0,0,128,128);c.fillStyle="#b5301f";c.beginPath();c.arc(64,64,44,0,Math.PI*2);c.fill();c.fillStyle="#2d4f8a";c.beginPath();c.arc(64,64,44,0,Math.PI);c.fill();c.beginPath();c.arc(86,64,22,0,Math.PI*2);c.fill();c.fillStyle="#b5301f";c.beginPath();c.arc(42,64,22,0,Math.PI*2);c.fill();});
+    const tp=mesh(new THREE.CircleGeometry(0.7,24),new THREE.MeshStandardMaterial({map:tg,roughness:.8}),0.55,2.0,0,g);tp.rotation.y=Math.PI/2;tp.castShadow=false;
+    colliders.push({x:X+9.5,z:Z0+11,r:1.1});mapItems.push({k:"c",x:X+9.5,z:Z0+11,r:1,c:"#b23a2c"});})();
+  // 깃발
+  [[-14,Z0+3,0xb23a2c],[14,Z0+3,0x2d5a86],[-14,Z1-4,0xd8b35a],[14,Z1-4,0x3f7a6b]].forEach(f=>{mesh(new THREE.CylinderGeometry(0.06,0.07,6,6),M(0x5a3a24),X+f[0],3,f[1]);
+    const fl=mesh(new THREE.PlaneGeometry(1.6,1.0),M(f[2],{side:THREE.DoubleSide}),X+f[0]+0.8,5.3,f[1]);fl.castShadow=false;gameAnim.push(t=>{fl.rotation.y=Math.sin(t*2+f[0])*0.25;});colliders.push({x:X+f[0],z:f[1],r:0.2});});
+  // 응시자 자리: 6열 × 5줄, 줄마다 차일
+  const mat=M(0xd8c088),deskM=M(0x6e4a2e),paper=M(0xfbf6ea),ink=M(0x1e1a17);const seats=[];const awnM=M(0xf4efe4,{side:THREE.DoubleSide,transparent:true,opacity:.9,depthWrite:false});EXAM.awn=awnM;
+  for(let r=0;r<5;r++){const z=Z0+15+r*5.6;
+    // 차일
+    for(const s of[-1,1])for(const xx of[-13.5,0,13.5]){mesh(new THREE.CylinderGeometry(0.06,0.06,3.2,6),M(0x7a5233),X+xx,1.6,z+s*1.9);}
+    const aw=mesh(new THREE.PlaneGeometry(28,4.4,8,2),awnM,X,3.25,z);aw.castShadow=true;aw.rotation.x=-Math.PI/2;
+    const pa=aw.geometry.attributes.position;for(let i=0;i<pa.count;i++){const px=pa.getX(i);pa.setZ(i,-0.18*Math.abs(Math.sin(px/14*Math.PI*1.5)));}aw.geometry.computeVertexNormals();
+    for(let c=0;c<6;c++){const x=X-12.5+c*5;const m2=mesh(new THREE.PlaneGeometry(1.5,1.7),mat,x,0.02,z);m2.rotation.x=-Math.PI/2;m2.castShadow=false;
+      mesh(new THREE.BoxGeometry(1.0,0.06,0.5),deskM,x,0.36,z-0.45);for(const a of[[-.42,-.2],[.42,-.2],[-.42,.2],[.42,.2]])mesh(new THREE.BoxGeometry(0.05,0.33,0.05),deskM,x+a[0],0.17,z-0.45+a[1]);
+      mesh(new THREE.BoxGeometry(0.6,0.01,0.4),paper,x,0.4,z-0.45);mesh(new THREE.BoxGeometry(0.16,0.04,0.22),ink,x+0.38,0.41,z-0.5);
+      colliders.push({x,z:z-0.45,r:0.55});seats.push({x,z,r,c});}}
+  mapItems.push({k:"r",x0:X-14,x1:X+14,z0:Z0+12.8,z1:Z0+40.6,c:"#efe6d0"});
+  // 앉아 있는 응시자들
+  const taken=[1,3,4,7,8,10,13,15,16,19,21,22,26,28];
+  taken.forEach((k,i)=>{const st=seats[k];const n=buildChar(i%3);n.position.set(st.x,-0.42,st.z+0.25);n.rotation.y=Math.PI;n.scale.setScalar(0.95);scene.add(n);
+    const ar=n.userData.arms;if(ar){ar[0].rotation.x=-1.2;ar[1].rotation.x=-1.2;}
+    gameAnim.push(t=>{n.rotation.z=Math.sin(t*0.8+i)*0.03;});});
+  const mySeat=seats[14];EXAM.seat=mySeat;
+  spots.push({id:"exam",name:"응시 자리",act:"자리에 앉아 과거 보기",x:mySeat.x,z:mySeat.z+1.2});
+  spots.push({id:"examBang",name:"방(榜) · 급제자 명단",act:"방 보기",x:X+13.3,z:Z0+10});
+  // 방 붙이는 판
+  (function(){const g=new THREE.Group();g.position.set(X+15.2,0,Z0+10);g.rotation.y=-Math.PI/2;scene.add(g);for(const s of[-1,1])mesh(new THREE.CylinderGeometry(0.08,0.09,2.6,6),M(0x5a3a24),s*1.1,1.3,0,g);
+    const tx=canvasTex(384,256,(c)=>{c.fillStyle="#f3ead2";c.fillRect(0,0,384,256);c.fillStyle="#6e2219";c.font="bold 64px 'Gowun Batang',serif";c.textAlign="center";c.fillText("榜",192,80);c.fillStyle="#3a3028";c.font="28px 'Gowun Dodum',sans-serif";["壯元 · 甲科","乙科 · 丙科"].forEach((l,i)=>c.fillText(l,192,150+i*44));});
+    const b=mesh(new THREE.BoxGeometry(2.4,1.6,0.08),[M(0x5a3a24),M(0x5a3a24),M(0x5a3a24),M(0x5a3a24),new THREE.MeshStandardMaterial({map:tx,roughness:.9}),M(0x5a3a24)],0,1.8,0,g);colliders.push({x:X+15.2,z:Z0+10,r:0.6});})();
+  // 앞마당에서 시험장으로 가는 길
+  const pth=mesh(new THREE.PlaneGeometry(X-(-3)+1,2.2),new THREE.MeshStandardMaterial({map:dirtTex(5,"#c5aa7c"),roughness:1}),(X+(-3))/2,0.021,50.5);pth.rotation.x=-Math.PI/2;pth.castShadow=false;
+  const pth2=mesh(new THREE.PlaneGeometry(2.2,50.5-Z1),new THREE.MeshStandardMaterial({map:dirtTex(3,"#c5aa7c"),roughness:1}),X,0.021,(50.5+Z1)/2);pth2.rotation.x=-Math.PI/2;pth2.castShadow=false;
+  mapItems.push({k:"r",x0:X,x1:-3,z0:49.4,z1:51.6,c:"#c9b083"});mapItems.push({k:"r",x0:X-1.1,x1:X+1.1,z0:Z1,z1:50.5,c:"#c9b083"});
+  (function(){const g=new THREE.Group();g.position.set(-14.5,0,52.6);g.rotation.y=0.25;scene.add(g);mesh(new THREE.CylinderGeometry(0.1,0.12,2.6,8),M(0x7a5233),0,1.3,0,g);
+    const tx=canvasTex(512,160,(c)=>{c.fillStyle="#6e2219";c.beginPath();c.moveTo(512,10);c.lineTo(72,10);c.lineTo(12,80);c.lineTo(72,150);c.lineTo(512,150);c.fill();c.fillStyle="#f3e6c6";c.font="bold 54px 'Gowun Batang',serif";c.textAlign="right";c.textBaseline="middle";c.fillText("← 과거시험장",490,62);c.font="32px 'Gowun Dodum',sans-serif";c.fillText("춘당대 科場",488,116);});
+    const b=mesh(new THREE.PlaneGeometry(2.2,0.7),new THREE.MeshStandardMaterial({map:tx,transparent:true,roughness:.9}),-0.85,2.2,0.08,g);b.castShadow=false;colliders.push({x:-14.5,z:52.6,r:0.25});})();
+})();
 
 /* 낙엽 & 색종이 */
 const leaves=[];const leafGeo=new THREE.PlaneGeometry(0.14,0.1);const leafMats=[0xf2c230,0xe8b020,0xd88b36,0xf6d24a].map(c=>M(c,{side:THREE.DoubleSide}));
@@ -1118,7 +1205,7 @@ const ROOMS={
    '<div class="row"><button class="pbtn blue" id="rd">Nghe đọc · 읽어 주기</button></div><p class="note">베트남어 한자 숏츠(첫 편 牛)를 이 자리에 연결할 수 있어요.</p>');
   $("rd").onclick=()=>speak("소 우. 우유. 한우.",0.8);},
  teacher(){setHead("존경각 尊經閣 · 훈장 연수실","선생님용 · 이 기기의 학습 현황");
-  h('<table class="t"><tr><th>항목</th><th>현재</th></tr><tr><td>급수</td><td>'+GRADES[S.grade].k+' '+GRADES[S.grade].h+'</td></tr><tr><td>익힌 편</td><td>'+doneCount()+' / 6편</td></tr><tr><td>붓</td><td>'+S.brushes+'자루</td></tr><tr><td>서첩 글씨</td><td>'+S.works.length+'점</td></tr><tr><td>읊은 한시</td><td>'+Object.keys(S.poems||{}).length+' / '+POEMS.length+'</td></tr><tr><td>물가 명상</td><td>'+(S.medi||0)+'번</td></tr><tr><td>수료증</td><td>'+(S.name?esc(S.name)+' 발급':'아직')+'</td></tr></table>'+
+  h('<table class="t"><tr><th>항목</th><th>현재</th></tr><tr><td>급수</td><td>'+GRADES[S.grade].k+' '+GRADES[S.grade].h+'</td></tr><tr><td>익힌 편</td><td>'+doneCount()+' / 6편</td></tr><tr><td>붓</td><td>'+S.brushes+'자루</td></tr><tr><td>서첩 글씨</td><td>'+S.works.length+'점</td></tr><tr><td>읊은 한시</td><td>'+Object.keys(S.poems||{}).length+' / '+POEMS.length+'</td></tr><tr><td>과거 시험</td><td>'+((S.gw&&S.gw.tries)||0)+'번 응시 · 최고 '+((S.gw&&S.gw.best)!=null?S.gw.best:'-')+'점'+(S.ash?' · 장원':'')+'</td></tr><tr><td>물가 명상</td><td>'+(S.medi||0)+'번</td></tr><tr><td>수료증</td><td>'+(S.name?esc(S.name)+' 발급':'아직')+'</td></tr></table>'+
    '<p><b>급수 기준</b></p><table class="t"><tr><td>학동 學童</td><td>0~1편</td></tr><tr><td>접장 接長</td><td>2~3편</td></tr><tr><td>유생 儒生</td><td>4~5편</td></tr><tr><td>선비 士</td><td>6편 모두</td></tr></table>'+
    '<p><b>수업 자료 서가</b></p><table class="t"><tr><td>사자소학 2편 · 명심보감 4편 차시 안</td><td class="note">준비 중</td></tr><tr><td>하루 한 자 활동지 (16자)</td><td class="note">준비 중</td></tr><tr><td>상형한자 숏츠 영상 목록</td><td class="note">준비 중</td></tr></table>'+
    '<p class="note">기록은 학생이 쓰는 이 기기의 브라우저에만 저장돼요. 반 전체 현황을 모아 보려면 공개 버전에서 Firebase 저장소를 연결하면 돼요.</p>'+
@@ -1163,7 +1250,7 @@ function updateSmoke(dt){smokeBoost=Math.max(0,smokeBoost-dt);smokeAcc+=dt*(smok
   while(smokeAcc>1){smokeAcc-=1;const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:smokeTex,transparent:true,depthWrite:false,opacity:.55}));sp.position.set(SMOKE.x+rnd(-.06,.06),SMOKE.y,SMOKE.z+rnd(-.06,.06));sp.scale.setScalar(.22);sp.userData={life:0,max:rnd(3,4.6),dx:rnd(-.12,.12)};scene.add(sp);smokes.push(sp);}
   for(let i=smokes.length-1;i>=0;i--){const s=smokes[i],u=s.userData;u.life+=dt;const k=u.life/u.max;s.position.y+=dt*0.55;s.position.x+=Math.sin(u.life*1.6)*0.06*dt+u.dx*dt;s.scale.setScalar(.22+k*1.1);s.material.opacity=.55*(1-k);
     if(k>=1){scene.remove(s);s.material.dispose();smokes.splice(i,1);}}}
-const MAPB={x0:-32,x1:60,z0:-52,z1:68};
+const MAPB={x0:-68,x1:60,z0:-52,z1:68};
 function drawMap(c,W,H){const sx=W/(MAPB.x1-MAPB.x0),sz=H/(MAPB.z1-MAPB.z0);const X=x=>(x-MAPB.x0)*sx,Z=z=>(z-MAPB.z0)*sz;
   c.fillStyle="#ad946a";c.fillRect(0,0,W,H);c.fillStyle="#c9b083";c.fillRect(X(-27),Z(-22),X(27)-X(-27),Z(46)-Z(-22));
   mapItems.forEach(it=>{c.fillStyle=it.c;if(it.k==="r")c.fillRect(X(it.x0),Z(it.z0),Math.max(1.5,X(it.x1)-X(it.x0)),Math.max(1.5,Z(it.z1)-Z(it.z0)));else{c.beginPath();c.arc(X(it.x),Z(it.z),Math.max(1.5,it.r*sx),0,Math.PI*2);c.fill();}});
@@ -1174,9 +1261,9 @@ function drawMini(){mctx.drawImage(mbase,0,0);const x=MT.X(player.position.x),z=
   mctx.fillStyle="#b23a2c";mctx.strokeStyle="#fbefe3";mctx.lineWidth=2.5;mctx.beginPath();mctx.arc(x,z,6,0,Math.PI*2);mctx.fill();mctx.stroke();}
 function teleport(x,z,face){player.position.set(x,heightAt(x,z),z);if(face!=null)player.rotation.y=face;yaw=player.rotation.y+Math.PI;camera.position.set(x+Math.sin(yaw)*dist,heightAt(x,z)+4,z+Math.cos(yaw)*dist);}
 ROOMS.map=function(){setHead("향교 지도","전학후묘(前學後廟): 앞에서 배우고 뒤에서 제향해요 · 누르면 바로 가요");
-  h('<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start"><canvas id="bigmap" width="440" height="574" style="width:220px;max-width:100%;height:auto;border:1px solid var(--edge)"></canvas>'+
+  h('<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start"><canvas id="bigmap" width="440" height="413" style="width:240px;max-width:100%;height:auto;border:1px solid var(--edge)"></canvas>'+
     '<div style="display:grid;gap:6px;flex:1;min-width:180px">'+spots.map((s,i)=>'<button class="pbtn" data-go="'+i+'">'+s.name+'</button>').join("")+'<button class="pbtn" data-go="gate">홍살문 (입구)</button></div></div>');
-  const bc=$("bigmap").getContext("2d");const T=drawMap(bc,440,574);bc.font="bold 20px 'Gowun Dodum',sans-serif";bc.textAlign="center";
+  const bc=$("bigmap").getContext("2d");const T=drawMap(bc,440,413);bc.font="bold 20px 'Gowun Dodum',sans-serif";bc.textAlign="center";
   spots.forEach(s=>{const x=T.X(s.x),z=T.Z(s.z);bc.fillStyle="#b23a2c";bc.beginPath();bc.arc(x,z,6,0,Math.PI*2);bc.fill();const nm=s.name.split(" · ")[0];bc.lineWidth=4;bc.strokeStyle="rgba(246,239,225,.95)";bc.strokeText(nm,x,z-11);bc.fillStyle="#2a231e";bc.fillText(nm,x,z-11);});
   bc.fillStyle="#2d5a86";bc.beginPath();bc.arc(T.X(player.position.x),T.Z(player.position.z),8,0,Math.PI*2);bc.fill();
   pBody.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{closePanel();if(b.dataset.go==="gate"){teleport(0,60,Math.PI);return;}const s=spots[+b.dataset.go];
@@ -1244,6 +1331,8 @@ const SFX=(function(){let A=null,master=null,amb=null,NB=null,on=true,started=fa
     stamp(){noise(0.08,"lowpass",900,0.8,0.25);tone(150,70,0.15,"sine",0.18);[880,1320].forEach((f,i)=>tone(f,0,0.5,"triangle",0.05,0.12+i*0.08));},
     bow(){[392,523.25,659.25].forEach((f,i)=>tone(f,0,2.2,"sine",0.06,i*0.35,null,0.2));chime(0);},
     open(){tone(660,0,0.12,"triangle",0.05);tone(990,0,0.16,"triangle",0.04,0.06);},
+    drum(){[0,0.45,0.9].forEach(d=>{tone(90,48,0.7,"sine",0.5,d);noise(0.12,"lowpass",300,0.8,0.35,d);});},
+    fail(){[392,349,311,262].forEach((f,i)=>tone(f,0,0.5,"triangle",0.08,i*0.18));},
     bowl(){[220,220*2.76,220*5.4].forEach((f,i)=>tone(f,f*0.998,6-i*1.5,"sine",[0.12,0.05,0.025][i],0,null,0.01));},
     tick(dt,ctxInfo){if(!started||!on||!A||A.state!=="running")return;
       if(amb&&amb.w){const d=ctxInfo.water==null?99:ctxInfo.water;const lv=Math.max(0,Math.min(1,1-(d-2.5)/16));amb.w.gain.setTargetAtTime(0.11*lv*lv,A.currentTime,0.4);
@@ -1307,12 +1396,12 @@ function tagTexFor(nick,ava,col){const cv=document.createElement("canvas");cv.wi
   c.fillStyle=col||"#8a8f99";c.beginPath();if(c.roundRect)c.roundRect(x,22,w,84,42);else c.rect(x,22,w,84);c.fill();
   c.fillStyle="#fff";c.textAlign="center";c.textBaseline="middle";c.fillText(label,256,66,w-30);const t=new THREE.CanvasTexture(cv);t.encoding=THREE.sRGBEncoding;return t;}
 function peerGrade(v){const g=parseInt(String(v.rm||"g0").slice(1),10);return isFinite(g)?Math.max(0,Math.min(4,g)):0;}
-function addPeer(id,v){const g=peerGrade(v);const body=buildChar(g);body.rotation.order="YXZ";scene.add(body);
+function addPeer(id,v){const g=peerGrade(v);const ash=/a$/.test(String(v.rm||""));const body=buildChar(g);if(ash)addAsh(body,g);body.rotation.order="YXZ";scene.add(body);
   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tagTexFor(v.nick,v.ava,v.col),depthWrite:false,transparent:true}));sp.scale.set(2.4,0.6,1);scene.add(sp);
-  const P={body,tag:sp,g,key:(v.nick||"")+(v.ava||"")+(v.col||""),x:ENC.dx(v.x||0),z:ENC.dz(v.z||0),yaw:v.yaw||0,jp:v.jp||0,jumpH:0,jumpV:0,walkT:0};
+  const P={body,tag:sp,g,ash,key:(v.nick||"")+(v.ava||"")+(v.col||""),x:ENC.dx(v.x||0),z:ENC.dz(v.z||0),yaw:v.yaw||0,jp:v.jp||0,jumpH:0,jumpV:0,walkT:0};
   body.position.set(P.x,heightAt(P.x,P.z),P.z);peerMap.set(id,P);return P;}
 function updPeer(id,v){let P=peerMap.get(id);if(!P){addPeer(id,v);return;}
-  const g=peerGrade(v);if(g!==P.g){const pos=P.body.position.clone(),r=P.body.rotation.y;scene.remove(P.body);P.body=buildChar(g);P.body.rotation.order="YXZ";P.body.position.copy(pos);P.body.rotation.y=r;scene.add(P.body);P.g=g;}
+  const g=peerGrade(v),ash=/a$/.test(String(v.rm||""));if(g!==P.g||ash!==P.ash){const pos=P.body.position.clone(),r=P.body.rotation.y;scene.remove(P.body);P.body=buildChar(g);if(ash)addAsh(P.body,g);P.body.rotation.order="YXZ";P.body.position.copy(pos);P.body.rotation.y=r;scene.add(P.body);P.g=g;P.ash=ash;}
   const key=(v.nick||"")+(v.ava||"")+(v.col||"");if(key!==P.key){P.tag.material.map.dispose();P.tag.material.map=tagTexFor(v.nick,v.ava,v.col);P.tag.material.needsUpdate=true;P.key=key;}
   P.x=ENC.dx(v.x||0);P.z=ENC.dz(v.z||0);P.yaw=v.yaw||0;if((v.jp||0)!==P.jp){P.jp=v.jp||0;if(P.jumpH===0)P.jumpV=7.2;}}
 function delPeer(id){const P=peerMap.get(id);if(!P)return;scene.remove(P.body);scene.remove(P.tag);if(P.bubble)scene.remove(P.bubble);P.tag.material.map.dispose();peerMap.delete(id);}
@@ -1324,7 +1413,7 @@ function startMulti(){if(roomApi||!(window.SR_CLASS&&window.SR_CLASS.ok&&window.
     sendPresence(true);}).catch(e=>console.warn("함께 접속을 시작하지 못했어요",e));}
 function sendPresence(force){if(!roomApi||!S.nick)return;const now=performance.now();
   const yaw=Math.atan2(Math.sin(player.rotation.y),Math.cos(player.rotation.y));
-  const data={nick:S.nick.slice(0,8),ava:S.emoji,col:S.color,sty:"teen",fl:0,rm:"g"+S.grade,jp:jumpCount%1000,x:ENC.x(player.position.x),z:ENC.z(player.position.z),yaw};
+  const data={nick:S.nick.slice(0,8),ava:S.emoji,col:S.color,sty:"teen",fl:0,rm:"g"+S.grade+(S.ash?"a":""),jp:jumpCount%1000,x:ENC.x(player.position.x),z:ENC.z(player.position.z),yaw};
   const key=[data.nick,data.ava,data.col,data.rm,data.jp,data.x.toFixed(1),data.z.toFixed(1),yaw.toFixed(1)].join("|");
   if(!force&&key===lastPresKey&&now-lastPres<4000)return;if(!force&&now-lastPres<250)return;
   lastPres=now;lastPresKey=key;roomApi.presence(data).catch(()=>{});}
@@ -1418,13 +1507,75 @@ function bubbleTick(now){const place=(H,x,y,z)=>{if(!H.bubble)return;if(now>H.bu
     const k=Math.min(1,(H.bubbleT-now)/300);H.bubble.material.opacity=k;H.bubble.position.set(x,y,z);};
   place(meHolder,player.position.x,player.position.y+(S.grade>=4?3.05:2.55)+0.85,player.position.z);
   peerMap.forEach(P=>place(P,P.body.position.x,P.body.position.y+(P.g>=4?3.05:2.55)+0.85,P.body.position.z));}
+/* ================= 과거 시험 ================= */
+const GW_GRADES=[{min:10,k:"장원급제",h:"壯元及第",pass:true,ash:true},{min:9,k:"갑과",h:"甲科",pass:true},{min:7,k:"을과",h:"乙科",pass:true},{min:5,k:"병과",h:"丙科",pass:true},{min:0,k:"낙방",h:"落榜",pass:false}];
+const SIJE=[["孝","효도"],["學","배움"],["信","믿음"],["仁","어짊"],["友","벗"],["善","착함"],["忠","정성"],["禮","예절"]];
+function makeExam(){const pick=(a,n)=>shuffle(a).slice(0,n);const Q=[];
+  const hunKeys=Object.keys(BRUSH_HUN).filter(k=>!BRUSH_HUN[k].includes(","));
+  pick(hunKeys,3).forEach(c=>{const opts=shuffle([c,...pick(hunKeys.filter(x=>x!==c),3)]);Q.push({kind:"훈음",big:c,q:"이 한자의 훈과 음은?",opts:opts.map(x=>BRUSH_HUN[x]),ans:opts.indexOf(c)});});
+  pick(hunKeys,2).forEach(c=>{const opts=shuffle([c,...pick(hunKeys.filter(x=>x!==c),3)]);Q.push({kind:"한자 찾기",big:BRUSH_HUN[c],q:"훈과 음에 맞는 한자는?",opts,ans:opts.indexOf(c),han:true});});
+  pick(IDIOMS,2).forEach(I=>{const opts=shuffle([I,...pick(IDIOMS.filter(x=>x!==I),3)]);Q.push({kind:"고사성어",big:I.c,sub:I.e,q:"이 고사성어의 뜻은?",opts:opts.map(x=>x.m),ans:opts.indexOf(I)});});
+  {const P=PIEONS[Math.floor(Math.random()*PIEONS.length)];const opts=shuffle([P,...pick(PIEONS.filter(x=>x!==P),3)]);Q.push({kind:"구절",big:P.lines.slice(0,2).join(" "),q:"이 구절이 실린 편은?",opts:opts.map(x=>x.book+" · "+x.title),ans:opts.indexOf(P),small:true});}
+  {const P=POEMS[Math.floor(Math.random()*POEMS.length)];const opts=shuffle([P,...pick(POEMS.filter(x=>x!==P),3)]);Q.push({kind:"한시",big:P.l[0],q:"이 시구를 지은 사람은?",opts:opts.map(x=>x.au.split(" ")[0]),ans:opts.indexOf(P),small:true});}
+  {const P=POEMS[Math.floor(Math.random()*POEMS.length)],k=Math.floor(Math.random()*4);const others=pick(POEMS.filter(x=>x!==P),3).map(x=>x.e[Math.floor(Math.random()*4)]);const opts=shuffle([P.e[k],...others]);
+    Q.push({kind:"한시 읽기",big:P.l[k],q:"이 시구를 바르게 읽은 것은?",opts,ans:opts.indexOf(P.e[k]),small:true});}
+  return shuffle(Q);}
+let EX=null;
+function examTimerTick(){if(!EX||EX.done)return;const left=Math.max(0,EX.end-Date.now());const bar=$("exBar");if(!bar){return;}bar.style.width=(left/EX.total*100)+"%";
+  const s=Math.ceil(left/1000);$("exTime").textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");if(left<=0){finishExam(true);return;}EX.timer=setTimeout(examTimerTick,500);}
+ROOMS.exam=function(){const best=S.gw&&S.gw.best!=null?S.gw.best:null;const sj=SIJE[(kstDay())%SIJE.length];if(window.__drawExamBoard)window.__drawExamBoard(sj[0],"오늘의 시제 · "+sj[1]);
+  setHead("춘당대 과거시험장","科場 · 오늘의 시제 「"+sj[0]+"」");
+  h('<p>북이 울리면 시험이 시작돼요. <b>10문제</b>를 <b>5분</b> 안에 풀고 시권(답안지)을 내면 채점해요. 답은 다 내고 나서야 알려 줘요. 실제 과거처럼요.</p>'+
+    '<table class="t"><tr><th>맞힌 수</th><th>결과</th></tr><tr><td>10</td><td>장원급제 壯元及第 · 홍패와 어사화</td></tr><tr><td>9</td><td>갑과 甲科 · 홍패</td></tr><tr><td>7~8</td><td>을과 乙科 · 홍패</td></tr><tr><td>5~6</td><td>병과 丙科 · 홍패</td></tr><tr><td>4 이하</td><td>낙방 落榜 · 다음 과거를 기약</td></tr></table>'+
+    '<p class="note">응시자 '+esc(S.nick||"학동")+(best!=null?' · 지금까지 최고 '+best+'점':'')+(S.ash?' · 어사화를 받았어요':'')+'</p>'+
+    '<div class="row" style="justify-content:center"><button class="pbtn main" id="exStart">북 울리고 시험 시작</button></div>');
+  $("exStart").onclick=startExam;};
+function startExam(){SFX.drum();EX={qs:makeExam(),i:0,picks:[],total:300000,end:Date.now()+300000,done:false};
+  const sp=EXAM.seat;if(sp){player.position.set(sp.x,-0.42,sp.z+0.25);player.rotation.y=Math.PI;}showQ();clearTimeout(EX.timer);examTimerTick();}
+function showQ(){const q=EX.qs[EX.i];
+  h('<div class="exhead"><span>제 '+(EX.i+1)+' 문 · '+q.kind+'</span><span id="exTime">5:00</span></div><div class="exbar"><i id="exBar"></i></div>'+
+    '<div class="exbig'+(q.small?' sm':'')+'">'+q.big+(q.sub?'<div class="eum">'+q.sub+'</div>':'')+'</div><p style="text-align:center"><b>'+q.q+'</b></p>'+
+    '<div class="exopts'+(q.han?' han':'')+'">'+q.opts.map((o,k)=>'<button class="pbtn" data-k="'+k+'"><small>'+"①②③④"[k]+'</small> '+o+'</button>').join("")+'</div>'+
+    '<div class="row" style="justify-content:space-between"><button class="pbtn" id="exPrev"'+(EX.i?'':' disabled')+'>앞 문제</button><button class="pbtn main" id="exSubmit"'+(EX.picks.filter(x=>x!=null).length===EX.qs.length?'':' hidden')+'>시권 제출</button></div>');
+  if(EX.picks[EX.i]!=null)pBody.querySelector('[data-k="'+EX.picks[EX.i]+'"]').classList.add("on");
+  pBody.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{EX.picks[EX.i]=+b.dataset.k;SFX.open();if(EX.i<EX.qs.length-1){EX.i++;showQ();}else showQ();});
+  $("exPrev").onclick=()=>{if(EX.i){EX.i--;showQ();}};$("exSubmit").onclick=()=>finishExam(false);examTimerTick();}
+function finishExam(timeout){if(!EX||EX.done)return;EX.done=true;clearTimeout(EX.timer);
+  const score=EX.qs.reduce((a,q,i)=>a+(EX.picks[i]===q.ans?1:0),0);const G=GW_GRADES.find(g=>score>=g.min);
+  S.gw=S.gw||{tries:0,best:null,passes:0};S.gw.tries++;S.gw.best=Math.max(S.gw.best||0,score);if(G.pass)S.gw.passes++;
+  const newAsh=G.ash&&!S.ash;if(G.ash)S.ash=true;S.gw.last={score,k:G.k,d:new Date().toLocaleDateString("ko-KR")};
+  if(G.pass){S.thoughts.unshift({b:"과거 "+G.k,v:"",t:"춘당대 과거에서 "+score+"문제를 맞혀 "+G.k+"("+G.h+")",d:new Date().toLocaleDateString("ko-KR")});S.thoughts=S.thoughts.slice(0,40);addBrush(G.ash?3:1);}
+  save();if(G.pass)SFX.fanfare();else SFX.fail();
+  const wrong=EX.qs.map((q,i)=>({q,i,p:EX.picks[i]})).filter(x=>x.p!==x.q.ans);
+  h((timeout?'<p class="note" style="text-align:center">향이 다 타서 시간이 끝났어요.</p>':'')+
+    '<div class="exres '+(G.pass?'pass':'fail')+'"><div class="exstamp">'+G.h+'</div><div class="hun">'+G.k+' · '+score+' / 10</div></div>'+
+    '<div id="hongpae"></div>'+
+    (wrong.length?'<p><b>다시 보기</b></p><table class="t">'+wrong.map(w=>'<tr><td>'+w.q.big+'</td><td>'+w.q.q+'<br><span class="ok">정답 '+w.q.opts[w.q.ans]+'</span>'+(w.p!=null?'<br><span class="ng">내 답 '+w.q.opts[w.p]+'</span>':'<br><span class="ng">답을 쓰지 않음</span>')+'</td></tr>').join("")+'</table>':'<p style="text-align:center">한 문제도 틀리지 않았구나!</p>')+
+    '<div class="row" style="justify-content:center"><button class="pbtn" id="exAgain">다시 응시하기</button></div>');
+  $("exAgain").onclick=()=>ROOMS.exam();
+  if(G.pass)renderHongpae(G,score);
+  if(newAsh){const p0=player.position.clone(),r=player.rotation.y;scene.remove(player);player=makePlayer(S.grade);player.position.copy(p0);player.rotation.y=r;scene.add(player);sendPresence(true);
+    setTimeout(()=>toast("장원급제로다! 어사화를 내리노라","갓에 어사화가 꽂혔어요"),300);}}
+function renderHongpae(G,score){const go=()=>{const W=900,H=640,cv=document.createElement("canvas");cv.width=W;cv.height=H;const c=cv.getContext("2d");
+  c.fillStyle="#b2342a";c.fillRect(0,0,W,H);c.strokeStyle="#e8c56a";c.lineWidth=10;c.strokeRect(26,26,W-52,H-52);c.lineWidth=3;c.strokeRect(46,46,W-92,H-92);
+  c.fillStyle="#fbe9c6";c.textAlign="center";c.textBaseline="middle";c.font="bold 96px 'Gowun Batang',serif";c.fillText("紅 牌",W/2,140);
+  c.font="bold 46px 'Gowun Batang',serif";c.fillText(G.h+" · "+G.k,W/2,250);c.font="bold 58px 'Gowun Batang',serif";c.fillText(S.nick||"학동",W/2,350);
+  c.font="30px 'Gowun Dodum',sans-serif";c.fillText("춘당대 과거에서 열 문제 가운데 "+score+"문제를 맞혀 급제하였기에 이 패를 내린다.",W/2,440);
+  c.fillText(new Date().toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric",timeZone:"Asia/Seoul"}),W/2,500);
+  c.font="bold 36px 'Gowun Batang',serif";c.fillText("한문 김선생 서당",W/2-50,566);c.strokeStyle="#fbe9c6";c.lineWidth=4;c.strokeRect(W/2+110,532,70,70);c.font="bold 28px 'Gowun Batang',serif";c.fillText("訓長",W/2+145,567);
+  let url="";try{url=cv.toDataURL("image/png");}catch(e){}if(url&&$("hongpae"))$("hongpae").innerHTML='<img src="'+url+'" alt="홍패" style="width:100%;max-width:440px;display:block;margin:0 auto;border-radius:3px"><p class="note" style="text-align:center">홍패 그림을 길게 누르거나 오른쪽 클릭하면 저장할 수 있어요.</p>';};
+  (document.fonts?document.fonts.ready:Promise.resolve()).then(go);}
+ROOMS.examBang=function(){setHead("방(榜) · 급제자 명단","이 기기의 과거 기록");const g=S.gw||{};
+  h('<table class="t"><tr><td>응시 횟수</td><td>'+(g.tries||0)+'번</td></tr><tr><td>급제 횟수</td><td>'+(g.passes||0)+'번</td></tr><tr><td>최고 점수</td><td>'+(g.best!=null?g.best+' / 10':'—')+'</td></tr><tr><td>최근 결과</td><td>'+(g.last?esc(g.last.k)+' · '+g.last.score+'점 · '+esc(g.last.d):'아직 없음')+'</td></tr><tr><td>어사화</td><td>'+(S.ash?'받음 🌸':'장원급제하면 받아요')+'</td></tr></table>'+
+    '<p class="note">조선의 문과는 갑과 3명, 을과 7명, 병과 23명, 모두 33명을 뽑았어요. 갑과 1등이 장원이고, 임금이 머리에 꽂아 준 꽃이 어사화(御賜花)예요.</p>');};
+
 /* ================= 루프 ================= */
 let near=null;
 function resize(){const w=canvas.clientWidth,hgt=canvas.clientHeight;renderer.setSize(w,hgt,false);camera.aspect=w/hgt;camera.fov=w/hgt<0.8?64:50;camera.updateProjectionMatrix();}
 addEventListener("resize",resize);resize();hud();
 const clock=new THREE.Clock();const tmp=new THREE.Vector3();let walkT=0;
 const ZONES=[{n:"순간이동 문 앞",x:7.6,z:61.4,r:1.8},{n:"마음정비소 푯말 앞",x:4.3,z:62.4,r:2.2},{n:"하마비 옆 말",x:-8.3,z:58.6,r:2},{n:"홍살문 앞",x:0,z:57,r:7},{n:"외삼문",x:0,z:46,r:3.5},{n:"은행나무 아래",x:-6,z:1.5,r:5},{n:"명륜당 앞",x:0,z:-4,r:4.5},{n:"동재 앞",x:9.5,z:6,r:4},{n:"서재 앞",x:-9.5,z:6,r:4},{n:"비천당 앞",x:-11.5,z:30,r:4.5},{n:"다국어 반 앞",x:14,z:30,r:4},{n:"한자 놀이 마당",x:12,z:20.5,r:8.5},{n:"한자 놀이 마당",x:-10,z:20.5,r:7},{n:"반수 연못가",x:10,z:41,r:5.5},{n:"놀이 마당",x:-9,z:40,r:4},{n:"훈장님 방 앞",x:-15,z:-12,r:4},{n:"존경각 앞",x:15,z:-12,r:4},{n:"내삼문",x:0,z:-25,r:3},{n:"대성전 뜰",x:0,z:-30,r:6}];
-function zoneName(p){for(const z of ZONES)if(Math.hypot(p.x-z.x,p.z-z.z)<z.r)return z.n;if(p.x>27.6){if(Math.abs(p.z-12)<1.3&&Math.abs(p.x-riverX(12))<4)return "홍예교";if(Math.abs(p.z+40)<1.5&&Math.abs(p.x-riverX(-40))<3.5)return "징검다리";if(Math.hypot(p.x-(riverX(12)+9),p.z-12)<5)return "탁영정";return "물가 산책길";}if(p.z>46.6)return "향교 밖";if(p.z<-22)return "제향 구역";return "강학 구역";}
+function zoneName(p){for(const z of ZONES)if(Math.hypot(p.x-z.x,p.z-z.z)<z.r)return z.n;if(p.x<-27.6){if(p.x>-65&&p.x<-31&&p.z>-18&&p.z<32)return "춘당대 과거시험장";return "서쪽 들길";}if(p.x>27.6){if(Math.abs(p.z-12)<1.3&&Math.abs(p.x-riverX(12))<4)return "홍예교";if(Math.abs(p.z+40)<1.5&&Math.abs(p.x-riverX(-40))<3.5)return "징검다리";if(Math.hypot(p.x-(riverX(12)+9),p.z-12)<5)return "탁영정";return "물가 산책길";}if(p.z>46.6)return "향교 밖";if(p.z<-22)return "제향 구역";return "강학 구역";}
 let lastZone="",stepPh=0;
 function loop(now){
   const dt=Math.min(clock.getDelta(),0.05),t=clock.elapsedTime;
@@ -1439,7 +1590,7 @@ function loop(now){
     colliders.forEach(c=>{const dx=nx-c.x,dz=nz-c.z,d=Math.hypot(dx,dz),m=c.r+0.35;if(d<m&&d>0.0001){nx=c.x+dx/d*m;nz=c.z+dz/d*m;}});
     boxes.forEach(b=>{const m=0.35;if(nx>b.x0-m&&nx<b.x1+m&&nz>b.z0-m&&nz<b.z1+m){const dl=nx-(b.x0-m),dr=(b.x1+m)-nx,db=nz-(b.z0-m),df=(b.z1+m)-nz,mn=Math.min(dl,dr,db,df);
       if(mn===dl)nx=b.x0-m;else if(mn===dr)nx=b.x1+m;else if(mn===db)nz=b.z0-m;else nz=b.z1+m;}});
-    nx=Math.max(-44,Math.min(58,nx));nz=Math.max(-56,Math.min(74,nz));
+    nx=Math.max(-68,Math.min(58,nx));nz=Math.max(-56,Math.min(74,nz));
     if(inWater(nx,nz)){const ox=player.position.x,oz=player.position.z;if(!inWater(nx,oz))nz=oz;else if(!inWater(ox,nz))nx=ox;else{nx=ox;nz=oz;}}
     const oz=player.position.z;player.position.x=nx;player.position.z=nz;
     GATES.forEach(G=>{if(Math.abs(nx-G.x)>G.w/2)return;
@@ -1479,6 +1630,7 @@ function loop(now){
   flames.forEach((f,i)=>{f.scale.y=1+Math.sin(t*13+i*2)*0.18;});
   if(!reduce)gameAnim.forEach(f=>f(t));
   updateSmoke(dt);
+  if(EXAM.awn){const inYard=camera.position.x<-31&&camera.position.x>-65&&camera.position.z>-18&&camera.position.z<34;const tgt=inYard?0.22:0.9;EXAM.awn.opacity+=(tgt-EXAM.awn.opacity)*Math.min(1,dt*4);}
   portalTick&&portalTick(t,dt);mediTick(now,dt);WILLOWS.forEach(g=>{g.visible=g.position.distanceToSquared(camera.position)>7;});
   SFX.tick(dt,{water:Math.abs(player.position.x-riverX(player.position.z)),inside:panelOpen&&!medi,shrine:player.position.z<-22,horseDist:Math.hypot(player.position.x+8.7,player.position.z-56.2),horsePan:0});
   if((++frameN)%3===0)drawMini();
