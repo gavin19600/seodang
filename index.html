@@ -191,6 +191,14 @@ a.act{text-decoration:none;display:inline-block}
 .schcard b{font-family:var(--display);font-size:18px}
 table.rank td.rk{width:2.6em;text-align:center;font-variant-numeric:tabular-nums}table.rank .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 table.rank tr.me td{background:#f6dfa0}.myrank{background:#fffaf0;border:1px dashed var(--edge);border-radius:3px;padding:8px 12px;margin:0}
+.rankhud{top:calc(116px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));width:min(320px,calc(100% - 32px));max-height:min(60vh,520px);display:flex;flex-direction:column;background:rgba(246,239,225,.96);border:1px solid var(--edge);border-top:4px solid var(--juchil);border-radius:4px;box-shadow:0 8px 24px rgba(60,40,20,.22);z-index:6}
+.rankhud[hidden]{display:none}
+.rhhead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px 6px}.rhhead b{font-family:var(--display);font-size:16px}
+.rhhead .pbtn{padding:4px 10px;font-size:13px}
+.rhbody{overflow-y:auto;padding:0 10px 10px;display:grid;gap:8px}
+.rhbody .tabs .pbtn{padding:4px 9px;font-size:13px}.rhbody table.t{font-size:13px}.rhbody table.t td,.rhbody table.t th{padding:5px 4px}.rhbody .myrank{font-size:13px;padding:6px 8px}
+.rankchip{top:calc(116px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px))}
+@media (max-width:640px){.rankhud,.rankchip{top:calc(150px + env(safe-area-inset-top,0px))}.rankhud{max-height:42vh}}
 .toast{position:absolute;left:50%;top:calc(150px + env(safe-area-inset-top,0px));transform:translate(-50%,-50%) scale(.96);opacity:0;z-index:9;pointer-events:none;background:var(--hanji);border:1px solid var(--edge);border-left:6px solid var(--juchil);
   padding:14px 22px;border-radius:3px;font-family:var(--display);font-size:19px;box-shadow:0 10px 30px rgba(60,40,20,.25);transition:opacity .35s,transform .35s;max-width:calc(100% - 40px);text-align:center}
 .toast small{display:block;font-family:var(--body);font-size:13px;color:var(--ink-soft);margin-top:4px}
@@ -224,6 +232,11 @@ table.rank tr.me td{background:#f6dfa0}.myrank{background:#fffaf0;border:1px das
   <div class="hud help">방향키·WASD 걷기 · Shift 달리기 · Space 점프 · 1~6 말풍선 · 화면 끌어 시점 돌리기 · E 들어가기</div>
   <div class="toast" id="toast" role="status"></div>
   <div class="warp" id="warp" hidden aria-hidden="true"></div>
+  <section class="hud rankhud" id="rankHud" hidden aria-label="학교 순위">
+    <div class="rhhead"><b>🏆 과거 학교 순위</b><button class="pbtn" id="rankFold">접기</button></div>
+    <div class="rhbody" id="rankHudBody"></div>
+  </section>
+  <button class="hud chip btn rankchip" id="rankChip" hidden>🏆 학교 순위</button>
   <div class="hud talk" id="talk" hidden role="dialog" aria-label="말풍선 고르기">
     <div class="tsay" id="tsay"></div>
     <div class="temo" id="temo"></div>
@@ -1013,22 +1026,22 @@ const EXAM={x:-48,z:6};
     const fl=mesh(new THREE.PlaneGeometry(1.6,1.0),M(f[2],{side:THREE.DoubleSide}),X+f[0]+0.8,5.3,f[1]);fl.castShadow=false;gameAnim.push(t=>{fl.rotation.y=Math.sin(t*2+f[0])*0.25;});colliders.push({x:X+f[0],z:f[1],r:0.2});});
   // 응시자 자리: 6열 × 5줄, 줄마다 차일
   const mat=M(0xd8c088),deskM=M(0x6e4a2e),paper=M(0xfbf6ea),ink=M(0x1e1a17);const seats=[];const awnM=M(0xf4efe4,{side:THREE.DoubleSide,transparent:true,opacity:.9,depthWrite:false});EXAM.awn=awnM;
-  for(let r=0;r<5;r++){const z=Z0+15+r*5.6;
+  for(let r=0;r<7;r++){const z=Z0+14+r*4.3;
     // 차일
-    for(const s of[-1,1])for(const xx of[-13.5,0,13.5]){mesh(new THREE.CylinderGeometry(0.06,0.06,3.2,6),M(0x7a5233),X+xx,1.6,z+s*1.9);}
-    const aw=mesh(new THREE.PlaneGeometry(28,4.4,8,2),awnM,X,3.25,z);aw.castShadow=true;aw.rotation.x=-Math.PI/2;
+    for(const s of[-1,1])for(const xx of[-14.6,0,14.6]){mesh(new THREE.CylinderGeometry(0.06,0.06,3.2,6),M(0x7a5233),X+xx,1.6,z+s*1.75);}
+    const aw=mesh(new THREE.PlaneGeometry(30,3.7,8,2),awnM,X,3.25,z);aw.castShadow=true;aw.rotation.x=-Math.PI/2;
     const pa=aw.geometry.attributes.position;for(let i=0;i<pa.count;i++){const px=pa.getX(i);pa.setZ(i,-0.18*Math.abs(Math.sin(px/14*Math.PI*1.5)));}aw.geometry.computeVertexNormals();
-    for(let c=0;c<6;c++){const x=X-12.5+c*5;const m2=mesh(new THREE.PlaneGeometry(1.5,1.7),mat,x,0.02,z);m2.rotation.x=-Math.PI/2;m2.castShadow=false;
+    for(let c=0;c<8;c++){const x=X-12.6+c*3.6;const m2=mesh(new THREE.PlaneGeometry(1.5,1.7),mat,x,0.02,z);m2.rotation.x=-Math.PI/2;m2.castShadow=false;
       mesh(new THREE.BoxGeometry(1.0,0.06,0.5),deskM,x,0.36,z-0.45);for(const a of[[-.42,-.2],[.42,-.2],[-.42,.2],[.42,.2]])mesh(new THREE.BoxGeometry(0.05,0.33,0.05),deskM,x+a[0],0.17,z-0.45+a[1]);
       mesh(new THREE.BoxGeometry(0.6,0.01,0.4),paper,x,0.4,z-0.45);mesh(new THREE.BoxGeometry(0.16,0.04,0.22),ink,x+0.38,0.41,z-0.5);
       colliders.push({x,z:z-0.45,r:0.55});seats.push({x,z,r,c});}}
-  mapItems.push({k:"r",x0:X-14,x1:X+14,z0:Z0+12.8,z1:Z0+40.6,c:"#efe6d0"});
+  mapItems.push({k:"r",x0:X-15,x1:X+15,z0:Z0+12,z1:Z0+42,c:"#efe6d0"});
   // 앉아 있는 응시자들
-  const taken=[1,3,4,7,8,10,13,15,16,19,21,22,26,28];
+  const taken=[0,2,5,7,9,10,14,16,19,21,23,25,26,30,33,35,38,40,42,45,47,49,52,54];
   taken.forEach((k,i)=>{const st=seats[k];const n=buildChar(i%3);n.position.set(st.x,-0.42,st.z+0.25);n.rotation.y=Math.PI;n.scale.setScalar(0.95);scene.add(n);
     const ar=n.userData.arms;if(ar){ar[0].rotation.x=-1.2;ar[1].rotation.x=-1.2;}
     gameAnim.push(t=>{n.rotation.z=Math.sin(t*0.8+i)*0.03;});});
-  const mySeat=seats[14];EXAM.seat=mySeat;
+  const mySeat=seats[11];EXAM.seat=mySeat;
   spots.push({id:"exam",name:"응시 자리",act:"자리에 앉아 과거 보기",x:mySeat.x,z:mySeat.z+1.2});
   spots.push({id:"examBang",name:"방(榜) · 급제자 명단",act:"방 보기",x:X+13.3,z:Z0+10});
   // 방 붙이는 판
@@ -1104,6 +1117,8 @@ $("act").addEventListener("click",()=>{if(near)openPanel(near.id);});
 $("albumBtn").addEventListener("click",()=>openPanel("album"));
 $("mapBtn").addEventListener("click",()=>openPanel("map"));
 $("gamesBtn").addEventListener("click",()=>openPanel("games"));
+$("rankFold").addEventListener("click",()=>{hudFold=true;showRankHud(true);});
+$("rankChip").addEventListener("click",()=>{hudFold=false;showRankHud(true);});
 $("mini").addEventListener("click",()=>openPanel("map"));
 function closePanel(){veil.hidden=true;panelOpen=false;try{speechSynthesis.cancel();}catch(e){}canvas.focus&&canvas.focus();if(pendingGrade!=null){const g=pendingGrade;pendingGrade=null;setTimeout(()=>promoteTo(g),300);}}
 function setHead(t,s){$("pTitle").textContent=t;$("pSub").textContent=s||"";}
@@ -1562,8 +1577,8 @@ function rankAdd(score){if(!S.school||!PUB||!window.SR_FB)return Promise.resolve
   return SR_FB.ready().then(()=>SR_FB.db.ref("gwrank/"+key).transaction(cur=>{cur=cur||{name:sc.name,region:sc.region,level:sc.level,total:0,count:0,best:0};
     cur.total=(cur.total||0)+score;cur.count=(cur.count||0)+1;cur.best=Math.max(cur.best||0,score);cur.name=sc.name;cur.region=sc.region;cur.level=sc.level;return cur;})).then(()=>true).catch(e=>{RANK.err=e&&(e.code||e.message)||"오류";rankChanged();return false;});}
 let rankTab=null;
-function rankHTML(lv){if(!PUB)return '<p class="note">학교 순위는 학생들이 쓰는 공개 사이트에서 모두 함께 쌓여요.</p>';
-  rankStart();lv=lv||(S.school&&S.school.level)||"중";rankTab=lv;
+function rankHTML(lv,hud){if(!PUB)return '<p class="note">학교 순위는 학생들이 쓰는 공개 사이트에서 모두 함께 쌓여요.</p>';
+  rankStart();lv=lv||(S.school&&S.school.level)||"중";if(!hud)rankTab=lv;
   const tabs='<div class="tabs">'+Object.keys(LEVELS).map(k=>'<button class="pbtn'+(k===lv?' on':'')+'" data-rt="'+k+'">'+LEVELS[k].bu+'</button>').join("")+'</div>';
   if(RANK.err)return tabs+'<p class="note">학교 순위를 불러오지 못했어요. ('+esc(RANK.err)+') 시험 점수는 이 기기에 저장돼요.</p>';
   if(!RANK.ready)return tabs+'<p class="note">학교 순위를 불러오는 중…</p>';
@@ -1573,7 +1588,10 @@ function rankHTML(lv){if(!PUB)return '<p class="note">학교 순위는 학생들
   if(mine){html+=mi>=0?'<p class="myrank">우리 학교 <b>'+esc(S.school.name)+'</b> · 현재 <b>'+(mi+1)+'위</b> / '+L.length+'개 학교 · 누적 '+L[mi].total+'점</p>':'<p class="myrank">우리 학교 <b>'+esc(S.school.name)+'</b>는 아직 점수가 없어요. 시험을 보면 순위에 올라가요.</p>';}
   return html;}
 function bindRank(){pBody.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{const box=$("rankBox");if(box){box.innerHTML=rankHTML(b.dataset.rt);bindRank();}});}
-function rankChanged(){const box=$("rankBox");if(box&&!veil.hidden){box.innerHTML=rankHTML(rankTab);bindRank();}drawBangBoard();}
+let hudTab=null,hudFold=false;
+function renderRankHud(){const box=$("rankHud");if(!box||box.hidden)return;$("rankHudBody").innerHTML=rankHTML(hudTab,true);box.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{hudTab=b.dataset.rt;renderRankHud();});}
+function showRankHud(on){const box=$("rankHud"),chip=$("rankChip");if(on){rankStart();hudTab=hudTab||(S.school&&S.school.level)||"중";box.hidden=hudFold;chip.hidden=!hudFold;renderRankHud();}else{box.hidden=true;chip.hidden=true;}}
+function rankChanged(){renderRankHud();const box=$("rankBox");if(box&&!veil.hidden){box.innerHTML=rankHTML(rankTab);bindRank();}drawBangBoard();}
 function drawBangBoard(){if(EXAM.bangDraw)EXAM.bangDraw();}
 
 /* ---------- 학교 고르기 ---------- */
@@ -1702,7 +1720,7 @@ function loop(now){
   let nb=null,nd=2.4;spots.forEach(s=>{const d=Math.hypot(player.position.x-s.x,player.position.z-s.z);if(d<nd){nd=d;nb=s;}});
   if(nb!==near){near=nb;const a=$("act"),al=$("actLink");a.hidden=true;al.hidden=true;if(near){const el=near.url?al:a;if(near.url){al.href=near.url;al.target=(PUB&&!near.ext)?"_self":"_blank";}el.hidden=false;el.innerHTML=near.act+" · "+near.name+'<small>E</small>';}}
   if(!portalBusy&&!panelOpen){const f=portalLocal(player.position.x,player.position.z);if(portalPrev&&Math.abs(f.lx)<PORTAL.w&&portalPrev.lz>0.55&&f.lz<=0.55&&f.lz>-0.6)startPortal(false);portalPrev=f;}
-  const zn=zoneName(player.position);if(zn!==lastZone){lastZone=zn;$("where").textContent=zn;}
+  const zn=zoneName(player.position);if(zn!==lastZone){const wasEx=lastZone==="춘당대 과거시험장",isEx=zn==="춘당대 과거시험장";lastZone=zn;$("where").textContent=zn;if(isEx!==wasEx){if(isEx)hudFold=false;showRankHud(isEx);if(isEx)SFX.open();}}
   // 카메라
   const tx=player.position.x,tz=player.position.z;
   const ty=player.position.y;let cd=dist;
