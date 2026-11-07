@@ -1066,9 +1066,16 @@ const EXAM={x:-48,z:6};
   const pth=mesh(new THREE.PlaneGeometry(X-(-3)+1,2.2),new THREE.MeshStandardMaterial({map:dirtTex(5,"#c5aa7c"),roughness:1}),(X+(-3))/2,0.021,50.5);pth.rotation.x=-Math.PI/2;pth.castShadow=false;
   const pth2=mesh(new THREE.PlaneGeometry(2.2,50.5-Z1),new THREE.MeshStandardMaterial({map:dirtTex(3,"#c5aa7c"),roughness:1}),X,0.021,(50.5+Z1)/2);pth2.rotation.x=-Math.PI/2;pth2.castShadow=false;
   mapItems.push({k:"r",x0:X,x1:-3,z0:49.4,z1:51.6,c:"#c9b083"});mapItems.push({k:"r",x0:X-1.1,x1:X+1.1,z0:Z1,z1:50.5,c:"#c9b083"});
-  (function(){const g=new THREE.Group();g.position.set(-14.5,0,52.6);g.rotation.y=0.25;scene.add(g);mesh(new THREE.CylinderGeometry(0.1,0.12,2.6,8),M(0x7a5233),0,1.3,0,g);
-    const tx=canvasTex(512,160,(c)=>{c.fillStyle="#6e2219";c.beginPath();c.moveTo(512,10);c.lineTo(72,10);c.lineTo(12,80);c.lineTo(72,150);c.lineTo(512,150);c.fill();c.fillStyle="#f3e6c6";c.font="bold 54px 'Gowun Batang',serif";c.textAlign="right";c.textBaseline="middle";c.fillText("← 과거시험장",490,62);c.font="32px 'Gowun Dodum',sans-serif";c.fillText("춘당대 科場",488,116);});
-    const b=mesh(new THREE.PlaneGeometry(2.2,0.7),new THREE.MeshStandardMaterial({map:tx,transparent:true,roughness:.9}),-0.85,2.2,0.08,g);b.castShadow=false;colliders.push({x:-14.5,z:52.6,r:0.25});})();
+  // 하마비 바로 뒤, 입구에서 정면으로 보이는 과거시험장 안내판
+  (function(){const SX=-5.3,SZ=52.6,g=new THREE.Group();g.position.set(SX,0,SZ);g.rotation.y=0.3;scene.add(g);
+    for(const s of[-1,1]){mesh(new THREE.CylinderGeometry(0.11,0.13,3.4,8),M(0x5a3a24),s*1.55,1.7,0,g);}
+    mesh(new THREE.BoxGeometry(3.5,0.16,0.22),M(0x5a3a24),0,3.42,0,g);
+    const mk=(t1,t2)=>canvasTex(768,256,(c)=>{c.fillStyle="#6e2219";c.fillRect(0,0,768,256);c.strokeStyle="#c8962e";c.lineWidth=10;c.strokeRect(12,12,744,232);
+      c.fillStyle="#f6e7c2";c.textAlign="center";c.textBaseline="middle";c.font="bold 84px 'Gowun Batang',serif";c.fillText(t1,384,100);
+      c.font="bold 40px 'Gowun Dodum',sans-serif";c.fillStyle="#f0cf86";c.fillText(t2,384,186);});
+    const tx=mk("← 과거시험장","춘당대 科場 · 왼쪽 길로 가요"),tx2=mk("과거시험장 →","춘당대 科場 · 오른쪽 길로 가요");
+    const b=mesh(new THREE.BoxGeometry(3.0,1.0,0.08),[M(0x5a3a24),M(0x5a3a24),M(0x5a3a24),M(0x5a3a24),new THREE.MeshStandardMaterial({map:tx,roughness:.85}),new THREE.MeshStandardMaterial({map:tx2,roughness:.85})],0,2.72,0,g);
+    const c=Math.cos(0.3),sn=Math.sin(0.3);for(const s of[-1,1])colliders.push({x:SX+s*1.55*c,z:SZ-s*1.55*sn,r:0.3});})();
 })();
 
 /* 낙엽 & 색종이 */
