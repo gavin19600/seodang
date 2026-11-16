@@ -664,7 +664,7 @@ const GAMES=[
  {id:"g5",file:"tuho",name:"고사성어 투호",ic:"壺",url:"https://claude.ai/artifact/ShjY9BPVKy3G3gGitiRTc1",d:"투호 항아리에 화살을 던지며 고사성어를 익히는 놀이예요.",prop:"tuho",x:10},
  {id:"g6",file:"blocks",name:"부수 블록 쌓기",ic:"部",url:"https://claude.ai/artifact/XZWuyxba8Uz8oDPhR8c7a7",d:"부수 블록을 쌓아 한자를 만들어 보는 놀이예요.",prop:"blocks",x:14.5},
  {id:"g7",file:"seal",name:"내 이름 도장 파기",ic:"印",url:"https://claude.ai/artifact/ViE74MaZrLD8gSCBvTZw7F",d:"내 이름을 한자 도장으로 새겨 보는 놀이예요.",prop:"seal",x:19},
- {id:"g8",file:"paldo",name:"팔도 한자 타이핑",ic:"八道",url:"https://claude.ai/artifact/WkkhXGyAB75UYmUS7Rh1Gw",d:"과거시험장 앞 부스 · 전국 지도의 한자 지명을 보고 한글 독음을 쳐서 학교 점수를 올려요.",prop:"typing",x:-52.6,z:38.2,big:true}
+ {id:"g8",file:"paldo",name:"팔도한자",ic:"八道",url:"https://gavin19600.github.io/seodang/games/paldo.html",d:"과거시험장 앞 부스 · 지도 위 지명·동네·문화재·산·강·역사·학교 이름을 한자로 보고 독음을 쳐요.",prop:"typing",x:-52.6,z:38.2,big:true}
 ];
 function booth(G){const z=G.z||19.5,g=new THREE.Group();g.position.set(G.x,0,z);scene.add(g);
   mesh(new THREE.BoxGeometry(2.8,0.25,2.8),new THREE.MeshStandardMaterial({map:stoneWallTex(1.1,0.2),roughness:.95}),0,0.125,0,g);
