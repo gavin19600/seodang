@@ -569,7 +569,9 @@ const STRESS_URL="https://abit.ly/%EC%8A%A4%ED%8A%B8%EB%A0%88%EC%8A%A4";const cl
   spots.push({id:"stress",name:"스트레스 마음정비소",act:"마음정비소 놀러가기",url:STRESS_URL,ext:true,x:x+Math.sin(-0.45)*-0,z:z+1.8});})();
 
 /* 푯말 옆 순간이동 문 → 마음정비소 */
-let portalTick=null;const PORTAL={x:8.2,z:59.6,r:-0.35,w:0.95};
+let portalTick=null;const PORTAL={x:8.2,z:59.6,r:-0.35,w:0.95,url:STRESS_URL,name:"마음정비소",to:"마음정비소로",title:"스트레스 마음정비소",id:"portal"};
+const FARM_URL="https://abit.ly/"+encodeURIComponent("마음농원");
+const HOLO={x:-12.6,z:60.4,r:0.55,w:0.95,url:FARM_URL,name:"마음농원",to:"마음농원으로",title:"마음농원",id:"holo"};const PORTALS=[PORTAL,HOLO];
 (function(){const P=PORTAL,g=new THREE.Group();g.position.set(P.x,0,P.z);g.rotation.y=P.r;scene.add(g);
   mesh(new THREE.BoxGeometry(2.9,0.3,1.1),M(0x9b9488),0,0.15,0,g);
   for(const s of[-1,1]){mesh(new THREE.CylinderGeometry(0.17,0.2,3.4,12),M(0x9a3426),s*1.15,1.95,0,g);mesh(new THREE.CylinderGeometry(0.3,0.34,0.3,10),M(0x8f8a80),s*1.15,0.3,0,g);}
@@ -589,19 +591,63 @@ let portalTick=null;const PORTAL={x:8.2,z:59.6,r:-0.35,w:0.95};
   const lt=new THREE.PointLight(0x8fb8ff,1.2,6);lt.position.set(0,1.8,0.6);g.add(lt);
   for(const s of[-1,1]){const lx=s*1.15;colliders.push({x:P.x+lx*Math.cos(P.r),z:P.z-lx*Math.sin(P.r),r:0.22});}
   mapItems.push({k:"r",x0:P.x-1.2,x1:P.x+1.2,z0:P.z-0.25,z1:P.z+0.25,c:"#6a5ad0"});
-  disc1.userData.portal=true;disc2.userData.portal=true;clickables.push(disc1,disc2);
+  disc1.userData.portal=PORTAL;disc2.userData.portal=PORTAL;clickables.push(disc1,disc2);
   spots.push({id:"portal",name:"순간이동 문",act:"순간이동 문으로 들어가기",x:P.x+Math.sin(P.r)*1.9,z:P.z+Math.cos(P.r)*1.9});
   portalTick=(t,dt)=>{t1.rotation=t*1.2;t2.rotation=-t*1.8;const k=1+Math.sin(t*3)*0.04;disc1.scale.set(k,k,1);lt.intensity=1+Math.sin(t*4)*0.3;
     sp.forEach(m=>{const u=m.userData;u.a+=dt*u.s;u.y=(u.y+dt*0.25)%1;m.position.set(Math.cos(u.a)*u.r,0.5+u.y*2.7,Math.sin(u.a)*0.25+0.1);m.material.opacity=Math.sin(u.y*Math.PI);});};})();
-let portalBusy=false,portalPrev=null;
-function portalLocal(px,pz){const dx=px-PORTAL.x,dz=pz-PORTAL.z,c=Math.cos(PORTAL.r),s=Math.sin(PORTAL.r);return{lx:dx*c-dz*s,lz:dx*s+dz*c};}
-function startPortal(fromClick){if(portalBusy)return;portalBusy=true;SFX.start();SFX.warp();
+/* 홀로그램 문 → 마음농원 */
+let holoTick=null;
+(function(){const P=HOLO,g=new THREE.Group();g.position.set(P.x,0,P.z);g.rotation.y=P.r;scene.add(g);
+  const glowM=(c,o)=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:o,blending:THREE.AdditiveBlending,depthWrite:false});
+  // 받침대
+  mesh(new THREE.CylinderGeometry(1.7,1.85,0.22,40),M(0x2b3236),0,0.11,0,g);mesh(new THREE.CylinderGeometry(1.45,1.45,0.05,40),M(0x3a4448),0,0.245,0,g);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(1.58,0.045,8,64),glowM(0x6dffc8,0.95));ring.rotation.x=Math.PI/2;ring.position.y=0.25;g.add(ring);
+  const ring2=new THREE.Mesh(new THREE.TorusGeometry(1.2,0.03,8,64),glowM(0x9fffe0,0.7));ring2.rotation.x=Math.PI/2;ring2.position.y=0.28;g.add(ring2);
+  // 빛 기둥 틀
+  const fm=glowM(0x7dffd0,0.9),W=2.1,H=3.3;
+  for(const sx of[-1,1]){const b=new THREE.Mesh(new THREE.BoxGeometry(0.07,H,0.07),fm);b.position.set(sx*W/2,0.28+H/2,0);g.add(b);
+    const nd=new THREE.Mesh(new THREE.SphereGeometry(0.11,12,10),glowM(0xc8fff0,1));nd.position.set(sx*W/2,0.28+H,0);g.add(nd);}
+  const top=new THREE.Mesh(new THREE.BoxGeometry(W,0.07,0.07),fm);top.position.set(0,0.28+H,0);g.add(top);
+  const arc=new THREE.Mesh(new THREE.TorusGeometry(W/2,0.04,8,40,Math.PI),fm);arc.position.set(0,0.28+H,0);g.add(arc);
+  // 홀로그램 화면 (주사선이 흐르는 캔버스)
+  const cv=document.createElement("canvas");cv.width=256;cv.height=400;const c=cv.getContext("2d");const tex=new THREE.CanvasTexture(cv);
+  const draw=(t)=>{c.clearRect(0,0,256,400);const gr=c.createLinearGradient(0,0,0,400);gr.addColorStop(0,"rgba(80,255,200,.10)");gr.addColorStop(.5,"rgba(60,230,190,.30)");gr.addColorStop(1,"rgba(120,255,210,.55)");c.fillStyle=gr;c.fillRect(0,0,256,400);
+    c.fillStyle="rgba(190,255,235,.16)";const off=(t*60)%8;for(let y=-8+off;y<400;y+=8)c.fillRect(0,y,256,3);
+    const by=((t*90)%520)-60;const bg=c.createLinearGradient(0,by-40,0,by+40);bg.addColorStop(0,"rgba(200,255,240,0)");bg.addColorStop(.5,"rgba(220,255,245,.45)");bg.addColorStop(1,"rgba(200,255,240,0)");c.fillStyle=bg;c.fillRect(0,by-40,256,80);
+    // 새싹
+    c.save();c.translate(128,200+Math.sin(t*2)*6);c.strokeStyle="rgba(230,255,245,.95)";c.lineWidth=7;c.lineCap="round";c.beginPath();c.moveTo(0,60);c.lineTo(0,-10);c.stroke();
+    c.fillStyle="rgba(150,255,200,.85)";c.beginPath();c.ellipse(-30,-18,32,15,-0.5,0,7);c.fill();c.beginPath();c.ellipse(30,-30,32,15,0.5,0,7);c.fill();
+    c.strokeStyle="rgba(230,255,245,.8)";c.lineWidth=4;c.beginPath();c.ellipse(0,64,52,10,0,0,7);c.stroke();c.restore();
+    c.fillStyle="rgba(235,255,248,.95)";c.font="bold 44px 'Gowun Dodum',sans-serif";c.textAlign="center";c.fillText("마음농원",128,330);
+    c.font="bold 22px 'Gowun Dodum',sans-serif";c.fillStyle="rgba(200,255,235,.85)";c.fillText("HOLO GATE",128,370);
+    c.strokeStyle="rgba(200,255,235,.7)";c.lineWidth=3;c.strokeRect(6,6,244,388);tex.needsUpdate=true;};
+  draw(0);
+  const scr=new THREE.Mesh(new THREE.PlaneGeometry(W-0.12,H-0.1),new THREE.MeshBasicMaterial({map:tex,transparent:true,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));scr.position.set(0,0.28+H/2,0);g.add(scr);
+  // 아래에서 쏘는 빛 원뿔
+  const cone=new THREE.Mesh(new THREE.CylinderGeometry(0.9,1.4,0.9,32,1,true),new THREE.MeshBasicMaterial({color:0x6dffc8,transparent:true,opacity:.16,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));cone.position.y=0.7;g.add(cone);
+  // 떠오르는 빛 알갱이
+  const sTex=canvasTex(32,32,(cc)=>{const gg=cc.createRadialGradient(16,16,0,16,16,16);gg.addColorStop(0,"rgba(220,255,240,1)");gg.addColorStop(1,"rgba(120,255,200,0)");cc.fillStyle=gg;cc.fillRect(0,0,32,32);});
+  const ps=[];for(let i=0;i<22;i++){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:sTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));m.scale.setScalar(0.14+Math.random()*0.1);m.userData={x:(Math.random()-0.5)*2,z:(Math.random()-0.5)*0.8,y:Math.random(),s:0.15+Math.random()*0.25};g.add(m);ps.push(m);}
+  const lb=new THREE.Sprite(new THREE.SpriteMaterial({map:boardTex("홀로그램 문",false)}));lb.scale.set(2.6,0.76,1);lb.position.set(0,4.75,0);g.add(lb);
+  const sub=new THREE.Sprite(new THREE.SpriteMaterial({map:labelTex("마음농원으로 슝!",{size:64,bg:"#12332b",line:"#6dffc8",fg:"#dffff2"}),transparent:true}));sub.scale.set(2.2,0.42,1);sub.position.set(0,4.2,0);g.add(sub);
+  const lt=new THREE.PointLight(0x6dffc8,1.3,7);lt.position.set(0,1.8,0.6);g.add(lt);
+  for(const sx of[-1,1]){const lx=sx*W/2;colliders.push({x:P.x+lx*Math.cos(P.r),z:P.z-lx*Math.sin(P.r),r:0.18});}
+  mapItems.push({k:"r",x0:P.x-1.1,x1:P.x+1.1,z0:P.z-0.25,z1:P.z+0.25,c:"#2fb88a"});
+  scr.userData.portal=HOLO;clickables.push(scr);
+  spots.push({id:"holo",name:"홀로그램 문",act:"마음농원으로 들어가기",x:P.x+Math.sin(P.r)*1.9,z:P.z+Math.cos(P.r)*1.9});
+  let acc=0;holoTick=(t,dt)=>{acc+=dt;if(acc>0.05){acc=0;draw(t);}
+    const fl=0.82+Math.sin(t*23)*0.06+(Math.random()<0.02?-0.35:0);scr.material.opacity=fl;
+    ring.rotation.z=t*0.6;ring2.rotation.z=-t*0.9;ring.material.opacity=0.75+Math.sin(t*3)*0.2;cone.material.opacity=0.12+Math.sin(t*2)*0.05;lt.intensity=1.1+Math.sin(t*4)*0.3;
+    ps.forEach(m=>{const u=m.userData;u.y=(u.y+dt*u.s)%1;m.position.set(u.x*(1-u.y*0.3),0.3+u.y*3.3,u.z);m.material.opacity=Math.sin(u.y*Math.PI);});};})();
+let portalBusy=false,portalPrev={},curPortal=PORTAL;
+function portalLocal(px,pz,P){P=P||PORTAL;const dx=px-P.x,dz=pz-P.z,c=Math.cos(P.r),s=Math.sin(P.r);return{lx:dx*c-dz*s,lz:dx*s+dz*c};}
+function startPortal(fromClick,P){P=P||PORTAL;if(portalBusy)return;portalBusy=true;curPortal=P;SFX.start();SFX.warp();
   const o=$("warp");o.hidden=false;o.classList.remove("go");void o.offsetWidth;o.classList.add("go");
-  toast("마음정비소로 순간이동!","슝 —");
-  if(!PUB&&fromClick){const a=document.createElement("a");a.href=STRESS_URL;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();}
-  setTimeout(()=>{if(PUB){location.href=STRESS_URL;}else{o.hidden=true;portalBusy=false;openPanel("portalLink");}},1300);}
-addEventListener("pageshow",()=>{const o=$("warp");if(o)o.hidden=true;portalBusy=false;const f=portalLocal(player.position.x,player.position.z);
-  if(Math.abs(f.lz)<1.2&&Math.abs(f.lx)<1.5){const sp=spots.find(x=>x.id==="portal");teleport(sp.x,sp.z,PORTAL.r+Math.PI);}});
+  toast(P.to+" 순간이동!","슝 —");
+  if(!PUB&&fromClick){const a=document.createElement("a");a.href=P.url;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();}
+  setTimeout(()=>{if(PUB){location.href=P.url;}else{o.hidden=true;portalBusy=false;openPanel("portalLink");}},1300);}
+addEventListener("pageshow",()=>{const o=$("warp");if(o)o.hidden=true;portalBusy=false;for(const P of PORTALS){const f=portalLocal(player.position.x,player.position.z,P);
+  if(Math.abs(f.lz)<1.2&&Math.abs(f.lx)<1.5){const sp=spots.find(x=>x.id===P.id);teleport(sp.x,sp.z,P.r+Math.PI);}}portalPrev={};});
 
 /* 홍살문, 하마비 */
 (function(){const red=M(0xb5301f);const g=new THREE.Group();g.position.set(0,0,56);scene.add(g);
@@ -634,7 +680,7 @@ function pine(x,z,s,y){y=y||0;const g=new THREE.Group();g.position.set(x,y,z);g.
   colliders.push({x,z,r:0.5*s});mapItems.push({k:"c",x,z,r:1.5*s,c:"#3a6b44"});}
 [[-23,-44,1.2],[23,-44,1.3],[-23,-29,1],[23,-29,1.1]].forEach(p=>pine(p[0],p[1],p[2],TER_Y));
 [[24,42,1.1],[-23,41,1.2],[-22,18,1],[22,18,1],[-23,-17,0.9],[23,-17,0.9]].forEach(p=>pine(p[0],p[1],p[2]));
-[[-12,60,1.4],[12,62,1.5],[-20,66,1.3],[22,58,1.2],[-72,12,1.6],[58,-8,1.5],[-36,-30,1.7],[58,-46,1.6]].forEach(p=>pine(p[0],p[1],p[2]));
+[[-17.5,59.5,1.4],[12,62,1.5],[-20,66,1.3],[22,58,1.2],[-72,12,1.6],[58,-8,1.5],[-36,-30,1.7],[58,-46,1.6]].forEach(p=>pine(p[0],p[1],p[2]));
 
 /* 반수 연못 (네모난 못에 둥근 섬) */
 (function(){const x=10,z=40;
@@ -1119,7 +1165,7 @@ canvas.addEventListener("pointermove",e=>{if(!drag)return;yaw-=(e.clientX-drag.x
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
 canvas.addEventListener("pointerup",e=>{const d=drag;drag=null;if(!d||panelOpen||Math.hypot(e.clientX-d.sx,e.clientY-d.sy)>8)return;
   const r=canvas.getBoundingClientRect();ndc.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(ndc,camera);
-  const hit=ray.intersectObjects(clickables,false)[0];if(hit&&hit.object.userData.portal){startPortal(true);return;}if(hit&&hit.object.userData.link){const a=document.createElement("a");a.href=hit.object.userData.link;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();toast("마음정비소로 놀러 가는구나","새 탭에서 열려요");}});
+  const hit=ray.intersectObjects(clickables,false)[0];if(hit&&hit.object.userData.portal){startPortal(true,hit.object.userData.portal);return;}if(hit&&hit.object.userData.link){const a=document.createElement("a");a.href=hit.object.userData.link;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();toast("마음정비소로 놀러 가는구나","새 탭에서 열려요");}});
 canvas.addEventListener("pointermove",e=>{if(drag)return;const r=canvas.getBoundingClientRect();ndc.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(ndc,camera);canvas.style.cursor=ray.intersectObjects(clickables,false).length?"pointer":"grab";});
 canvas.addEventListener("wheel",e=>{e.preventDefault();dist=Math.min(14,Math.max(4,dist+e.deltaY*0.006));},{passive:false});
 const joy=$("joy"),knob=$("knob");let jv={x:0,y:0},jid=null;
@@ -1477,8 +1523,9 @@ function updatePeers(dt){peerMap.forEach(P=>{const b=P.body;const dx=P.x-b.posit
     b.position.y=heightAt(b.position.x,b.position.z)+(P.jumpH>0?P.jumpH:(moving?Math.abs(Math.sin(P.walkT))*0.06:0));
     const a=b.userData.arms;if(a){const sw=P.jumpH>0?-0.9:(moving?Math.sin(P.walkT)*0.5:0);a[0].rotation.x=-0.38+sw;a[1].rotation.x=-0.38-sw;}
     P.tag.position.set(b.position.x,b.position.y+(P.g>=4?3.05:2.55),b.position.z);});}
-ROOMS.portal=function(){closePanel();startPortal(true);};
-ROOMS.portalLink=function(){setHead("순간이동 문","스트레스 마음정비소");h('<p style="text-align:center">마음정비소로 가는 문이 열렸어요.</p><div class="row" style="justify-content:center"><a class="pbtn main lk" href="'+STRESS_URL+'" target="_blank" rel="noopener">마음정비소 열기</a></div>');};
+ROOMS.portal=function(){closePanel();startPortal(true,PORTAL);};
+ROOMS.holo=function(){closePanel();startPortal(true,HOLO);};
+ROOMS.portalLink=function(){const P=curPortal;setHead(P===HOLO?"홀로그램 문":"순간이동 문",P.title);h('<p style="text-align:center">'+P.to+' 가는 문이 열렸어요.</p><div class="row" style="justify-content:center"><a class="pbtn main lk" href="'+P.url+'" target="_blank" rel="noopener">'+P.name+' 열기</a></div>');};
 ROOMS.horse=function(){setHead("하마비 옆 말","馬 · 말 마");horseNod=1;SFX.neigh(0);
   h('<div class="big">馬</div><div class="hun">말 마</div><p>갈기를 날리며 서 있는 말의 모습을 본떠 만든 글자예요. 아래쪽 네 점은 말의 네 다리랍니다.</p>'+
     '<p><b>하마비(下馬碑)</b>는 "여기서부터는 말에서 내려라"라는 뜻의 비석이에요. 향교나 성균관 앞에서는 높은 벼슬아치도 말에서 내려 걸어 들어갔어요. 그래서 이 말도 여기서 주인을 기다리고 있지요.</p>'+
@@ -1717,7 +1764,7 @@ let near=null;
 function resize(){const w=canvas.clientWidth,hgt=canvas.clientHeight;renderer.setSize(w,hgt,false);camera.aspect=w/hgt;camera.fov=w/hgt<0.8?64:50;camera.updateProjectionMatrix();}
 addEventListener("resize",resize);resize();hud();
 const clock=new THREE.Clock();const tmp=new THREE.Vector3();let walkT=0;
-const ZONES=[{n:"순간이동 문 앞",x:7.6,z:61.4,r:1.8},{n:"마음정비소 푯말 앞",x:4.3,z:62.4,r:2.2},{n:"하마비 옆 말",x:-8.3,z:58.6,r:2},{n:"홍살문 앞",x:0,z:57,r:7},{n:"외삼문",x:0,z:46,r:3.5},{n:"은행나무 아래",x:-6,z:1.5,r:5},{n:"명륜당 앞",x:0,z:-4,r:4.5},{n:"동재 앞",x:9.5,z:6,r:4},{n:"서재 앞",x:-9.5,z:6,r:4},{n:"비천당 앞",x:-11.5,z:30,r:4.5},{n:"다국어 반 앞",x:14,z:30,r:4},{n:"한자 놀이 마당",x:12,z:20.5,r:8.5},{n:"한자 놀이 마당",x:-10,z:20.5,r:7},{n:"반수 연못가",x:10,z:41,r:5.5},{n:"놀이 마당",x:-9,z:40,r:4},{n:"훈장님 방 앞",x:-15,z:-12,r:4},{n:"존경각 앞",x:15,z:-12,r:4},{n:"내삼문",x:0,z:-25,r:3},{n:"대성전 뜰",x:0,z:-30,r:6}];
+const ZONES=[{n:"순간이동 문 앞",x:7.6,z:61.4,r:1.8},{n:"홀로그램 문 앞",x:-11.6,z:61.9,r:1.9},{n:"마음정비소 푯말 앞",x:4.3,z:62.4,r:2.2},{n:"하마비 옆 말",x:-8.3,z:58.6,r:2},{n:"홍살문 앞",x:0,z:57,r:7},{n:"외삼문",x:0,z:46,r:3.5},{n:"은행나무 아래",x:-6,z:1.5,r:5},{n:"명륜당 앞",x:0,z:-4,r:4.5},{n:"동재 앞",x:9.5,z:6,r:4},{n:"서재 앞",x:-9.5,z:6,r:4},{n:"비천당 앞",x:-11.5,z:30,r:4.5},{n:"다국어 반 앞",x:14,z:30,r:4},{n:"한자 놀이 마당",x:12,z:20.5,r:8.5},{n:"한자 놀이 마당",x:-10,z:20.5,r:7},{n:"반수 연못가",x:10,z:41,r:5.5},{n:"놀이 마당",x:-9,z:40,r:4},{n:"훈장님 방 앞",x:-15,z:-12,r:4},{n:"존경각 앞",x:15,z:-12,r:4},{n:"내삼문",x:0,z:-25,r:3},{n:"대성전 뜰",x:0,z:-30,r:6}];
 function zoneName(p){for(const z of ZONES)if(Math.hypot(p.x-z.x,p.z-z.z)<z.r)return z.n;if(p.x<-27.6){if(p.x>-65&&p.x<-31&&p.z>-18&&p.z<32)return "춘당대 과거시험장";return "서쪽 들길";}if(p.x>27.6){if(Math.abs(p.z-12)<1.3&&Math.abs(p.x-riverX(12))<4)return "홍예교";if(Math.abs(p.z+40)<1.5&&Math.abs(p.x-riverX(-40))<3.5)return "징검다리";if(Math.hypot(p.x-(riverX(12)+9),p.z-12)<5)return "탁영정";return "물가 산책길";}if(p.z>46.6)return "향교 밖";if(p.z<-22)return "제향 구역";return "강학 구역";}
 let lastZone="",stepPh=0;
 function loop(now){
@@ -1755,7 +1802,7 @@ function loop(now){
   // 근처 확인
   let nb=null,nd=2.4;spots.forEach(s=>{const d=Math.hypot(player.position.x-s.x,player.position.z-s.z);if(d<nd){nd=d;nb=s;}});
   if(nb!==near){near=nb;const a=$("act"),al=$("actLink");a.hidden=true;al.hidden=true;if(near){const el=near.url?al:a;if(near.url){al.href=near.url;al.target=(PUB&&!near.ext)?"_self":"_blank";}el.hidden=false;el.innerHTML=near.act+" · "+near.name+'<small>E</small>';}}
-  if(!portalBusy&&!panelOpen){const f=portalLocal(player.position.x,player.position.z);if(portalPrev&&Math.abs(f.lx)<PORTAL.w&&portalPrev.lz>0.55&&f.lz<=0.55&&f.lz>-0.6)startPortal(false);portalPrev=f;}
+  if(!portalBusy&&!panelOpen){for(const P of PORTALS){const f=portalLocal(player.position.x,player.position.z,P),pv=portalPrev[P.id];if(pv&&Math.abs(f.lx)<P.w&&pv.lz>0.55&&f.lz<=0.55&&f.lz>-0.6)startPortal(false,P);portalPrev[P.id]=f;}}
   const zn=zoneName(player.position);if(zn!==lastZone){const wasEx=lastZone==="춘당대 과거시험장",isEx=zn==="춘당대 과거시험장";lastZone=zn;$("where").textContent=zn;if(isEx!==wasEx){showRankHud(isEx);if(isEx)SFX.open();}}
   // 카메라
   const tx=player.position.x,tz=player.position.z;
@@ -1774,7 +1821,7 @@ function loop(now){
   if(!reduce)gameAnim.forEach(f=>f(t));
   updateSmoke(dt);
   if(EXAM.awn){const inYard=camera.position.x<-31&&camera.position.x>-65&&camera.position.z>-18&&camera.position.z<34;const tgt=inYard?0.22:0.9;EXAM.awn.opacity+=(tgt-EXAM.awn.opacity)*Math.min(1,dt*4);}
-  portalTick&&portalTick(t,dt);mediTick(now,dt);WILLOWS.forEach(g=>{g.visible=g.position.distanceToSquared(camera.position)>7;});
+  portalTick&&portalTick(t,dt);holoTick&&holoTick(t,dt);mediTick(now,dt);WILLOWS.forEach(g=>{g.visible=g.position.distanceToSquared(camera.position)>7;});
   SFX.tick(dt,{water:Math.abs(player.position.x-riverX(player.position.z)),inside:panelOpen&&!medi,shrine:player.position.z<-22,horseDist:Math.hypot(player.position.x+8.7,player.position.z-56.2),horsePan:0});
   if((++frameN)%3===0)drawMini();
   updatePeers(dt);sendPresence(false);
