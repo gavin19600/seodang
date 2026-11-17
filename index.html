@@ -927,8 +927,8 @@ const SMOKE={x:0,y:TER_Y+1.15,z:-30.2};
 
 /* 먼 산 */
 // 세상 끝 너머 겹겹이 보이는 먼 산 (걸어갈 수 없는 곳)
-for(let i=0;i<26;i++){const a=i/26*Math.PI*2+0.13,r=330+((i*37)%5)*28,hh=70+((i*53)%7)*14;const col=[0x8aa0b0,0x7d94a6,0x8ea4b3,0x9db0bd,0x93a8b6][i%5];
-  const c=mesh(new THREE.ConeGeometry(hh*1.9,hh,7),new THREE.MeshLambertMaterial({color:col,flatShading:true,fog:false}),Math.cos(a)*r*1.35,hh/2-6,18+Math.sin(a)*r*1.35);c.castShadow=false;c.receiveShadow=false;}
+for(let i=0;i<30;i++){const a=i/30*Math.PI*2+0.13,r=560+((i*37)%5)*40,hh=55+((i*53)%7)*12;const col=[0x6f8798,0x647d90,0x7890a0,0x6a8294,0x738b9c][i%5];
+  const c=mesh(new THREE.ConeGeometry(hh*2.2,hh,6),new THREE.MeshBasicMaterial({color:col,fog:false}),Math.cos(a)*r,hh/2-8,18+Math.sin(a)*r);c.castShadow=false;c.receiveShadow=false;}
 
 /* ================= 캐릭터 ================= */
 const SKIN=0xf1d2b4,HAIR=0x1c1917;
