@@ -508,7 +508,7 @@ function hqForest(name,list,nearCount,fitOpts){fitOpts=fitOpts||{};const A=HQ[na
   const F={list,mats,ims:[],near:[],nearCount:nearCount!=null?nearCount:(LOWQ?1:3),lastIdx:""};WORLD.forests=WORLD.forests||[];WORLD.forests.push(F);
   hqLoad(A.far||A.lod||A.orig,src=>{const f=hqFit(src,A,fitOpts);f.node.updateMatrixWorld(true);const parts=[];f.node.traverse(m=>{if(m.isMesh)parts.push(m);});
     parts.forEach(pm=>{const im=new THREE.InstancedMesh(pm.geometry,pm.material,mats.length);const local=pm.matrixWorld.clone();F.local=F.local||[];
-      mats.forEach((m,i)=>im.setMatrixAt(i,m.clone().multiply(local)));im.castShadow=true;im.receiveShadow=true;im.frustumCulled=false;scene.add(im);F.ims.push({im,local});});});
+      mats.forEach((m,i)=>im.setMatrixAt(i,m.clone().multiply(local)));im.castShadow=!fitOpts.noShadow;im.receiveShadow=true;im.frustumCulled=false;scene.add(im);F.ims.push({im,local});});});
   if(F.nearCount>0&&(A.lod||A.far)){F.wantOrig=()=>{if(F.origReq)return;F.origReq=true;hqLoad(A.orig,src=>{F.orig=src;hqCache[A.orig].used++;});};}
   F.tick=function(){if(!F.ims.length||!F.nearCount)return;const px=player.position.x,pz=player.position.z;
     if(!F.orig){if(F.wantOrig&&list.some(t=>Math.hypot(t.x-px,t.z-pz)<HQ_NEAR+6))F.wantOrig();return;}
@@ -564,7 +564,7 @@ function makeRigged(R){
   const lL=new THREE.Bone(),lR=new THREE.Bone(),aL=new THREE.Bone(),aR=new THREE.Bone();
   root.add(lL,lR,aL,aR);lL.position.set(0.05*R.H,R.hipY,0);lR.position.set(-0.05*R.H,R.hipY,0);aL.position.set(R.shX*0.85,R.shY,0);aR.position.set(-R.shX*0.85,R.shY,0);
   const bones=[root,lL,lR,aL,aR];G.add(root);G.updateMatrixWorld(true);const sk=new THREE.Skeleton(bones);
-  R.parts.forEach(pt=>{const sm=new THREE.SkinnedMesh(pt.geometry,pt.material);sm.castShadow=true;sm.receiveShadow=true;sm.frustumCulled=false;G.add(sm);sm.bind(sk,new THREE.Matrix4());});
+  R.parts.forEach(pt=>{const sm=new THREE.SkinnedMesh(pt.geometry,pt.material);sm.castShadow=true;sm.receiveShadow=true;sm.geometry.computeBoundingSphere();sm.geometry.boundingSphere.radius*=1.4;G.add(sm);sm.bind(sk,new THREE.Matrix4());});
   return {G,bones:{root,lL,lR,aL,aR}};}
 function buildChar(gi){gi=Math.max(0,Math.min(4,gi|0));
   const G=new THREE.Group();G.userData.grade=gi;
@@ -1625,10 +1625,10 @@ function placeModel(name,x,z,ry,scale,fallback,y){const A=HQ[name];return placeH
     if(FLATS.some(f=>Math.hypot(jx-f.x,jz-f.z)<f.r+6))continue;if([[-3,-138],[-100,-78],[-93,-73]].some(([px,pz])=>Math.hypot(jx-px,jz-pz)<13))continue;if(hash2(jx*1.3,jz*0.7)>(h>22?0.9:h>3?0.72:0.28))continue;
     const t={x:jx,y:h-0.1,z:jz,r:hash2(jx,jz)*6.28,s:0.8+hash2(jz,jx)*0.6};
     if(h>46)continue;(h>22?far:list).push(t);if(h<34)colliders.push({x:jx,z:jz,r:0.45*t.s});}
-  hqForest("pine",list.concat(far).map(t=>Object.assign({},t,{s:t.s*(0.9+hash2(t.z,t.x)*0.5)})),LOWQ?4:10,{fit:{h:8}});
+  hqForest("pine",list.concat(far).map(t=>Object.assign({},t,{s:t.s*(0.9+hash2(t.z,t.x)*0.5)})),LOWQ?4:10,{fit:{h:8},noShadow:true});
   // 세상 끝: 거대한 바위 절벽을 병풍처럼
   const ring=[];for(let i=0;i<46;i++){const a=i/46*Math.PI*2,rx=232,rz=236;const x=Math.cos(a)*rx*(1+hash2(i,1)*0.12),z=18+Math.sin(a)*rz*(1+hash2(1,i)*0.12);ring.push({x,y:Math.max(0,worldH(Math.max(WB.x0,Math.min(WB.x1,x)),Math.max(WB.z0,Math.min(WB.z1,z))))-6,z,r:-a+Math.PI/2+hash2(i,i)*0.8,s:1.4+hash2(i,7)*1.6});}
-  hqForest("cliff",ring,2,{fit:{w:70,d:50,h:58}});
+  hqForest("cliff",ring,2,{fit:{w:70,d:50,h:58},noShadow:true});
   for(let i=0;i<14;i++){const a=hash2(i,3)*Math.PI*2,r=120+hash2(3,i)*70;const x=Math.cos(a)*r,z=18+Math.sin(a)*r;if(inCore(x,z)||Math.abs(x-riverX(z))<14)continue;placeHQ("cliff",x,z,a,{y:worldH(x,z)-1.5,fit:{w:12,d:10,h:8+hash2(i,9)*10},radius:8});colliders.push({x,z,r:5});}
 })();
 
