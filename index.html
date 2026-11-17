@@ -493,12 +493,15 @@ function placeHQ(name,x,z,ry,opts){opts=opts||{};const A=HQ[name];const y=opts.y
   hqInstances.push(inst);
   const want=A.lod||A.orig;hqLoad(want,src=>{const f=hqFit(src,A,opts);inst.lodNode=f.node;if(!inst.origNode||!inst.origNode.visible){g.add(f.node);}if(inst.origNode)f.node.visible=false;if(opts.onReady)opts.onReady(g,f,false);});
   return g;}
-const _hqv=new THREE.Vector3();function hqTick(){const px=player.position.x,pz=player.position.z;
-  for(const it of hqInstances){if(!it.A.lod)continue;it.g.getWorldPosition(_hqv);const d=Math.hypot(_hqv.x-px,_hqv.z-pz)-it.r;
-    if(d<HQ_NEAR&&!it.origNode&&!it.loadingOrig){it.loadingOrig=true;hqLoad(it.A.orig,src=>{const f=hqFit(src,it.A,it.opts);it.origNode=f.node;it.g.add(f.node);hqCache[it.A.orig].used++;it.loadingOrig=false;if(it.lodNode)it.lodNode.visible=false;if(it.opts.onReady)it.opts.onReady(it.g,f,true);});}
-    else if(it.origNode){const near=d<HQ_NEAR+HQ_FAR_MARGIN;it.origNode.visible=near;if(it.lodNode)it.lodNode.visible=!near;
-      // 멀리 벗어나면 원본(4K 텍스처)을 메모리에서 내려놓음 → 다시 다가오면 다시 받아옴(브라우저 캐시)
-      if(d>HQ_NEAR+HQ_FAR_MARGIN+40){it.g.remove(it.origNode);it.origNode=null;hqRelease(it.A.orig);}}}}
+const _hqv=new THREE.Vector3();const HQ_MAX_ORIG=LOWQ?2:6;   // 동시에 4K 원본으로 그릴 건물 수(가장 가까운 것부터)
+function hqTick(){const px=player.position.x,pz=player.position.z;const arr=[];
+  for(const it of hqInstances){if(!it.A.lod)continue;it.g.getWorldPosition(_hqv);arr.push([Math.hypot(_hqv.x-px,_hqv.z-pz)-it.r,it]);}
+  arr.sort((a,b)=>a[0]-b[0]);let k=0;
+  for(const [d,it] of arr){const rank=k;if(d<HQ_NEAR)k++;const allow=d<HQ_NEAR&&rank<HQ_MAX_ORIG;
+    if(allow&&!it.origNode&&!it.loadingOrig){it.loadingOrig=true;hqLoad(it.A.orig,src=>{it.loadingOrig=false;if(it.dropped){it.dropped=false;return;}const f=hqFit(src,it.A,it.opts);it.origNode=f.node;it.g.add(f.node);hqCache[it.A.orig].used++;if(it.lodNode)it.lodNode.visible=false;if(it.opts.onReady)it.opts.onReady(it.g,f,true);});}
+    else if(it.origNode){const show=d<HQ_NEAR+HQ_FAR_MARGIN&&rank<HQ_MAX_ORIG+1;it.origNode.visible=show;if(it.lodNode)it.lodNode.visible=!show;
+      // 멀리 벗어나거나 더 가까운 건물에 자리를 내주면 원본(4K 텍스처)을 GPU 메모리에서 내려놓음 → 다시 다가오면 다시 받아옴(브라우저 캐시)
+      if(d>HQ_NEAR+HQ_FAR_MARGIN+40||rank>=HQ_MAX_ORIG+3){it.g.remove(it.origNode);it.origNode=null;if(it.lodNode)it.lodNode.visible=true;hqRelease(it.A.orig);}}}}
 function hqRelease(url){const c=hqCache[url];if(!c)return;c.used=Math.max(0,c.used-1);if(c.used>0||c.status!=="ready")return;
   c.scene.traverse(m=>{if(m.isMesh){m.geometry.dispose();(Array.isArray(m.material)?m.material:[m.material]).forEach(mt=>{if(!mt)return;for(const k in mt){if(mt[k]&&mt[k].isTexture)mt[k].dispose();}mt.dispose();});}});
   delete hqCache[url];WORLD.hqReleased=(WORLD.hqReleased||0)+1;}
@@ -583,7 +586,7 @@ function charTick(){const px=player.position.x,pz=player.position.z;
     if(sitting){B.lL.rotation.x=B.lR.rotation.x=-1.45;B.aL.rotation.x=B.aR.rotation.x=-0.7;G.userData.body.position.y=0.42-G.userData.H*0.5+0.32;}
     else{const sl=(a[0].rotation.x+0.38),sr=(a[1].rotation.x+0.38);B.aL.rotation.x=sl*0.75;B.aR.rotation.x=sr*0.75;B.lL.rotation.x=-sl*0.8;B.lR.rotation.x=-sr*0.8;G.userData.body.position.y=0;}
     // 가까이 오면 원본 모델로
-    const wp=G.getWorldPosition(new THREE.Vector3());if(G.userData.tier!=="orig"&&Math.hypot(wp.x-px,wp.z-pz)<HQ_NEAR)G.userData.wantOrig&&G.userData.wantOrig();}}
+    const wp=G.getWorldPosition(new THREE.Vector3());if(G.userData.tier!=="orig"&&(G===player||!LOWQ)&&Math.hypot(wp.x-px,wp.z-pz)<HQ_NEAR)G.userData.wantOrig&&G.userData.wantOrig();}}
 function addBeard(){}            // 원본 모델에는 수염을 따로 붙이지 않음
 
 function dirtTex(rep,base){return canvasTex(256,256,(x,w,hh)=>{x.fillStyle=base||"#a58f62";x.fillRect(0,0,w,hh);for(let i=0;i<2600;i++){x.fillStyle=Math.random()<.5?"rgba(110,84,52,.16)":"rgba(230,206,160,.18)";x.fillRect(Math.random()*w,Math.random()*hh,2+Math.random()*3,2+Math.random()*3);}},rep,rep);}
