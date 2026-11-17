@@ -2278,6 +2278,9 @@ function hqFinalize(){
 
 hqFinalize();
 window.__hqdbg=()=>({cine:CINE.ok,cineErr:CINE.err||'',hdri:!!WORLD.hdriLoaded,hdriErr:WORLD.hdriError||'',prim:primitiveCount(),purged:WORLD.purged,loaded:WORLD.hqLoaded||0,errors:WORLD.hqErrors||[],missing:[...new Set(WORLD.hqMissing||[])],inst:hqInstances.length,tris:renderer.info.render.triangles,calls:renderer.info.render.calls});
+window.__hqtp=(x,z)=>{player.position.set(x,heightAt(x,z),z);};
+window.__hqstat=()=>{const st={};for(const u in hqCache){st[u.split('/').pop()]=hqCache[u].status+(hqCache[u].used?':'+hqCache[u].used:'');}
+  return {orig:hqInstances.filter(i=>i.origNode).map(i=>i.name),cache:st,mem:renderer.info.memory,released:WORLD.hqReleased||0,chars:CHARS.map(c=>c.userData.tier||'-'),forestNear:(WORLD.forests||[]).map(F=>F.near.length+'/'+(F.orig?'o':'-'))};};
 requestAnimationFrame(loop);
 
 })();
