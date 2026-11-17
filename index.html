@@ -1427,7 +1427,7 @@ function inCore(x,z){return x>=CORE.x0&&x<=CORE.x1&&z>=CORE.z0&&z<=CORE.z1;}
 /* 품질: 휴대폰은 가볍게 */
 if(LOWQ){renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));sun.shadow.mapSize.set(1024,1024);}
 camera.far=1200;camera.updateProjectionMatrix();
-scene.fog=new THREE.Fog(0xc9d4d6,LOWQ?90:110,LOWQ?340:470);
+scene.fog=new THREE.Fog(0xc9d4d6,LOWQ?100:140,LOWQ?430:620);
 
 /* 땅: 세상 전체를 덮는 높낮이 있는 지형 */
 (function(){
