@@ -1495,7 +1495,7 @@ function forestInstances(name,list,fallbackParts){
 (function(){const list=[],far=[];const step=LOWQ?11:8.5;
   for(let x=WB.x0;x<=WB.x1;x+=step)for(let z=WB.z0;z<=WB.z1;z+=step){const jx=x+(hash2(x,z)-0.5)*step*0.9,jz=z+(hash2(z,x)-0.5)*step*0.9;
     if(inCore(jx,jz))continue;const h=worldH(jx,jz);if(Math.abs(jx-riverX(jz))<9)continue;if(ROADS_H.some(r=>distToPolyline(jx,jz,r)<6))continue;
-    if(FLATS.some(f=>Math.hypot(jx-f.x,jz-f.z)<f.r+6))continue;if(hash2(jx*1.3,jz*0.7)>(h>3?0.72:0.28))continue;
+    if(FLATS.some(f=>Math.hypot(jx-f.x,jz-f.z)<f.r+6))continue;if([[-3,-138],[-100,-78],[-93,-73]].some(([px,pz])=>Math.hypot(jx-px,jz-pz)<13))continue;if(hash2(jx*1.3,jz*0.7)>(h>3?0.72:0.28))continue;
     const t={x:jx,y:h-0.1,z:jz,r:hash2(jx,jz)*6.28,s:0.8+hash2(jz,jx)*0.6};
     if(h>34)continue;(h>22?far:list).push(t);colliders.push({x:jx,z:jz,r:0.45*t.s});}
   const lim=LOWQ?80:260;list.sort((a,b)=>Math.hypot(a.x,a.z-10)-Math.hypot(b.x,b.z-10));const near=list.slice(0,lim),rest=list.slice(lim).concat(far);
@@ -1552,6 +1552,11 @@ const STALLS=[
   placeModel("jangseung",4.6,80,Math.PI,1,fb=>{for(const s of[-0.6,0.6])mesh(new THREE.CylinderGeometry(0.28,0.32,3,8),M(0x9b7448),s,1.5,0,fb);});colliders.push({x:4.6,z:80,r:1});
   spots.push({id:"jangseung",name:"장승 · 天下大將軍",act:"장승 살펴보기",x:4.6,z:82.4});
 })();
+/* 이정표 (홍살문 앞 갈림길) */
+(function(){const g=new THREE.Group();g.position.set(-4.6,0,71);g.rotation.y=0.25;scene.add(g);mesh(new THREE.CylinderGeometry(0.12,0.14,3.6,8),M(0x6b4a30),0,1.8,0,g);colliders.push({x:-4.6,z:71,r:0.3});
+  [["저잣거리 · 나루터 ↓",3.1,"#7e2a1f",0.2],["← 논밭 · 과거시험장",2.45,"#2f4a2a",-0.25],["누각 · 북악 산길 ↑",1.8,"#1f3a44",0.1]].forEach(([t,y,bg,r])=>{
+    const tx=canvasTex(512,110,(c)=>{c.fillStyle=bg;c.fillRect(0,0,512,110);c.strokeStyle="#d8b35a";c.lineWidth=5;c.strokeRect(6,6,500,98);c.fillStyle="#f6ecd2";c.font="bold 46px 'Gowun Dodum',sans-serif";c.textAlign="center";c.textBaseline="middle";c.fillText(t,256,58);});
+    const b=mesh(new THREE.BoxGeometry(2.1,0.45,0.06),[M(0x5a3a24),M(0x5a3a24),M(0x5a3a24),M(0x5a3a24),new THREE.MeshStandardMaterial({map:tx,roughness:.9}),new THREE.MeshStandardMaterial({map:tx,roughness:.9})],0,y,0.08,g);b.rotation.y=r;});})();
 function showStall(i){const S=STALLS[i];setHead(S.shop,"저잣거리 · 가게 간판의 한자");
   h('<div class="big">'+S.c+'</div><div class="hun">'+S.h+'</div><p>'+S.d+'</p><p><b>이 글자가 들어간 낱말</b><br>'+S.w.map(esc).join("<br>")+'</p>'+
     '<div class="row"><button class="pbtn" id="stSpeak">소리 듣기</button><button class="pbtn main" id="stNext">옆 가게 글자 →</button></div><p class="note">장터를 한 바퀴 돌며 간판 글자 10개를 모두 읽어 보세요.</p>');
