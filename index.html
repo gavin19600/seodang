@@ -1427,7 +1427,7 @@ function inCore(x,z){return x>=CORE.x0&&x<=CORE.x1&&z>=CORE.z0&&z<=CORE.z1;}
 /* 품질: 휴대폰은 가볍게 */
 if(LOWQ){renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));sun.shadow.mapSize.set(1024,1024);}
 camera.far=1200;camera.updateProjectionMatrix();
-scene.fog=new THREE.Fog(0xdfe2dc,LOWQ?80:100,LOWQ?320:430);
+scene.fog=new THREE.Fog(0xc9d4d6,LOWQ?90:110,LOWQ?340:470);
 
 /* 땅: 세상 전체를 덮는 높낮이 있는 지형 */
 (function(){
@@ -1440,7 +1440,7 @@ scene.fog=new THREE.Fog(0xdfe2dc,LOWQ?80:100,LOWQ?320:430);
     if(x<WB.x0-10||x>WB.x1+10||z<WB.z0-10||z>WB.z1+10)h+=30;
     p.setY(i,inCore(x,z)?-0.002:h);
     const dOut=Math.hypot(Math.max(CORE.x0-x,0,x-CORE.x1),Math.max(CORE.z0-z,0,z-CORE.z1));
-    C.copy(dirt).lerp(grass,sstep(2,18,dOut));if(h>4)C.lerp(forest,sstep(4,14,h));if(h>26)C.lerp(rock,sstep(26,38,h));if(h>40)C.lerp(snow,sstep(40,52,h));
+    C.copy(dirt).lerp(grass,sstep(2,18,dOut));if(h>4)C.lerp(forest,sstep(4,14,h));if(h>26)C.lerp(rock,sstep(26,38,h));if(h>40)C.lerp(rock,sstep(40,52,h)*0.5);
     const n=vnoise(x*0.3,z*0.3)*0.12-0.06;col[i*3]=C.r+n;col[i*3+1]=C.g+n;col[i*3+2]=C.b+n;}
   g.setAttribute("color",new THREE.BufferAttribute(col,3));g.computeVertexNormals();
   const tex=canvasTex(256,256,(x,w,hh)=>{x.fillStyle="#dcd7cb";x.fillRect(0,0,w,hh);for(let i=0;i<900;i++){const px=Math.random()*w,py=Math.random()*hh,r=2+Math.random()*7;const g=x.createRadialGradient(px,py,0,px,py,r);const c=Math.random()<.5?"90,80,60":"255,250,235";g.addColorStop(0,"rgba("+c+",.10)");g.addColorStop(1,"rgba("+c+",0)");x.fillStyle=g;x.fillRect(px-r,py-r,r*2,r*2);}},W/10,H/10);tex.anisotropy=8;
@@ -1502,7 +1502,7 @@ function forestInstances(name,list,fallbackParts){
   const trunk=new THREE.CylinderGeometry(0.18,0.32,3.2,6);trunk.translate(0,1.6,0);const crown=new THREE.ConeGeometry(1.7,3.6,7);crown.translate(0,4.4,0);
   forestInstances("pine",near.map(t=>Object.assign({},t,{s:t.s*6.2/6.2})),[[trunk,M(0x7a4b33,{flatShading:true})],[crown,M(0x4f7440,{flatShading:true})]]);
   // 먼 산의 나무는 아주 가벼운 원뿔로만
-  const fc=new THREE.ConeGeometry(1.6,4.4,5);fc.translate(0,2.2,0);const fm=new THREE.InstancedMesh(fc,M(0x50703f,{flatShading:true}),rest.length);const d=new THREE.Object3D();
+  const fc=new THREE.ConeGeometry(1.6,4.4,5);fc.translate(0,2.2,0);const fm=new THREE.InstancedMesh(fc,M(0x3f5f35,{flatShading:true}),rest.length);const d=new THREE.Object3D();
   rest.forEach((t,i)=>{d.position.set(t.x,t.y,t.z);d.rotation.set(0,t.r,0);d.scale.setScalar(t.s*1.2);d.updateMatrix();fm.setMatrixAt(i,d.matrix);});fm.receiveShadow=true;scene.add(fm);
 })();
 
