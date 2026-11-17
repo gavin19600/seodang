@@ -1408,7 +1408,7 @@ function worldH(x,z){
   const w=sstep(0,26,dOut);
   let h=(vnoise(x*0.035,z*0.035)*7+vnoise(x*0.09+7,z*0.09)*2.2)*w;
   for(const p of PEAKS){const d2=(x-p.x)**2+(z-p.z)**2;h+=p.h*Math.exp(-d2/(2*p.s*p.s))*w;}
-  const e=Math.max(Math.abs(x)/198,z<18?(18-z)/210:(z-18)/210);h+=46*sstep(0.8,1.02,e);
+  const e=Math.max(Math.abs(x)/198,z<18?(18-z)/210:(z-18)/210);h+=(52+vnoise(x*0.02+3,z*0.02)*26)*sstep(0.6,1.08,e);
   h*=sstep(4.5,22,Math.abs(x-riverX(z)));
   for(const f of FLATS){const d=Math.hypot(x-f.x,z-f.z);if(d<f.r+f.f){const k=1-sstep(f.r,f.r+f.f,d);h=h+(f.h-h)*k;}}
   return Math.max(0,h);}
@@ -1437,7 +1437,6 @@ scene.fog=new THREE.Fog(0xc9d4d6,LOWQ?100:140,LOWQ?430:620);
   const p=g.attributes.position,col=new Float32Array(p.count*3),C=new THREE.Color();
   const dirt=new THREE.Color("#a8916a"),grass=new THREE.Color("#86a05a"),forest=new THREE.Color("#4f6f3e"),rock=new THREE.Color("#6f7064"),snow=new THREE.Color("#cfd2cc");
   for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i);let h=inCore(x,z)?0:worldH(x,z);
-    if(x<WB.x0-10||x>WB.x1+10||z<WB.z0-10||z>WB.z1+10)h+=30;
     p.setY(i,inCore(x,z)?-0.002:h);
     const dOut=Math.hypot(Math.max(CORE.x0-x,0,x-CORE.x1),Math.max(CORE.z0-z,0,z-CORE.z1));
     C.copy(dirt).lerp(grass,sstep(2,18,dOut));if(h>4)C.lerp(forest,sstep(4,14,h));if(h>30)C.lerp(rock,sstep(30,48,h)*0.6);if(h>40)C.lerp(rock,sstep(40,52,h)*0.5);
