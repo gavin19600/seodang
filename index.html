@@ -928,7 +928,7 @@ const SMOKE={x:0,y:TER_Y+1.15,z:-30.2};
 /* 먼 산 */
 // 세상 끝 너머 겹겹이 보이는 먼 산 (걸어갈 수 없는 곳)
 for(let i=0;i<26;i++){const a=i/26*Math.PI*2+0.13,r=330+((i*37)%5)*28,hh=70+((i*53)%7)*14;const col=[0x8aa0b0,0x7d94a6,0x8ea4b3,0x9db0bd,0x93a8b6][i%5];
-  const c=mesh(new THREE.ConeGeometry(hh*1.9,hh,7),M(col,{flatShading:true}),Math.cos(a)*r,hh/2-6,18+Math.sin(a)*r);c.castShadow=false;c.receiveShadow=false;}
+  const c=mesh(new THREE.ConeGeometry(hh*1.9,hh,7),new THREE.MeshLambertMaterial({color:col,flatShading:true,fog:false}),Math.cos(a)*r*1.35,hh/2-6,18+Math.sin(a)*r*1.35);c.castShadow=false;c.receiveShadow=false;}
 
 /* ================= 캐릭터 ================= */
 const SKIN=0xf1d2b4,HAIR=0x1c1917;
@@ -1426,8 +1426,8 @@ function inCore(x,z){return x>=CORE.x0&&x<=CORE.x1&&z>=CORE.z0&&z<=CORE.z1;}
 
 /* 품질: 휴대폰은 가볍게 */
 if(LOWQ){renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));sun.shadow.mapSize.set(1024,1024);}
-camera.far=900;camera.updateProjectionMatrix();
-scene.fog=new THREE.Fog(0xe6dccb,LOWQ?70:90,LOWQ?240:330);
+camera.far=1200;camera.updateProjectionMatrix();
+scene.fog=new THREE.Fog(0xdfe2dc,LOWQ?80:100,LOWQ?320:430);
 
 /* 땅: 세상 전체를 덮는 높낮이 있는 지형 */
 (function(){
@@ -1450,10 +1450,10 @@ scene.fog=new THREE.Fog(0xe6dccb,LOWQ?70:90,LOWQ?240:330);
 })();
 
 /* 하늘: 힉스필드로 그린 수묵 산 하늘 파노라마 (못 불러오면 기존 하늘색 그대로) */
-(function(){const R=760,Hh=420;const geo=new THREE.CylinderGeometry(R,R,Hh,48,1,true);
+(function(){const R=1000,Hh=1300;const geo=new THREE.CylinderGeometry(R,R,Hh,48,1,true);
   const mat=new THREE.MeshBasicMaterial({side:THREE.BackSide,fog:false,transparent:true,opacity:0,depthWrite:false});
-  const sky=new THREE.Mesh(geo,mat);sky.position.y=Hh*0.5-210;sky.renderOrder=-1;scene.add(sky);WORLD.sky=sky;
-  new THREE.TextureLoader().setCrossOrigin("anonymous").load(ASSET.sky,t=>{t.encoding=THREE.sRGBEncoding;t.wrapS=THREE.MirroredRepeatWrapping;t.repeat.set(4,1);mat.map=t;mat.needsUpdate=true;mat.opacity=1;},undefined,()=>{});
+  const sky=new THREE.Mesh(geo,mat);sky.position.y=0;sky.renderOrder=-1;scene.add(sky);WORLD.sky=sky;
+  new THREE.TextureLoader().setCrossOrigin("anonymous").load(ASSET.sky,t=>{t.encoding=THREE.sRGBEncoding;t.wrapS=THREE.MirroredRepeatWrapping;t.repeat.set(4,1);t.offset.y=0.08;mat.map=t;mat.needsUpdate=true;mat.opacity=1;},undefined,()=>{});
 })();
 
 /* 길 놓기 (땅을 따라 휘는 띠) */
@@ -1497,8 +1497,8 @@ function forestInstances(name,list,fallbackParts){
     if(inCore(jx,jz))continue;const h=worldH(jx,jz);if(Math.abs(jx-riverX(jz))<9)continue;if(ROADS_H.some(r=>distToPolyline(jx,jz,r)<6))continue;
     if(FLATS.some(f=>Math.hypot(jx-f.x,jz-f.z)<f.r+6))continue;if(hash2(jx*1.3,jz*0.7)>(h>3?0.72:0.28))continue;
     const t={x:jx,y:h-0.1,z:jz,r:hash2(jx,jz)*6.28,s:0.8+hash2(jz,jx)*0.6};
-    if(h>34)continue;(h>16?far:list).push(t);colliders.push({x:jx,z:jz,r:0.45*t.s});}
-  const lim=LOWQ?150:340;list.sort((a,b)=>Math.hypot(a.x,a.z-10)-Math.hypot(b.x,b.z-10));const near=list.slice(0,lim),rest=list.slice(lim).concat(far);
+    if(h>34)continue;(h>22?far:list).push(t);colliders.push({x:jx,z:jz,r:0.45*t.s});}
+  const lim=LOWQ?80:260;list.sort((a,b)=>Math.hypot(a.x,a.z-10)-Math.hypot(b.x,b.z-10));const near=list.slice(0,lim),rest=list.slice(lim).concat(far);
   const trunk=new THREE.CylinderGeometry(0.18,0.32,3.2,6);trunk.translate(0,1.6,0);const crown=new THREE.ConeGeometry(1.7,3.6,7);crown.translate(0,4.4,0);
   forestInstances("pine",near.map(t=>Object.assign({},t,{s:t.s*6.2/6.2})),[[trunk,M(0x7a4b33,{flatShading:true})],[crown,M(0x4f7440,{flatShading:true})]]);
   // 먼 산의 나무는 아주 가벼운 원뿔로만
