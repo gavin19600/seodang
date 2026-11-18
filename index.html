@@ -514,11 +514,13 @@ function hqShow(it,lvl){it.lvl=lvl;const done=()=>{if(it.lvl!==lvl)return;for(co
   if(it.nodes[lvl]){done();return;}if(it["ld_"+lvl])return;it["ld_"+lvl]=1;
   hqLoad(lvl==="far"?it.A.far:(it.A.lod||it.A.orig),src=>{if(!src)return;const f=hqFit(src,it.A,it.opts);it.nodes[lvl]=f.node;f.node.visible=false;it.g.add(f.node);
     if(lvl==="mid"){it.lodNode=f.node;if(it.hiMats)applyMats(f.node,it.hiMats);if(it.opts.onReady)it.opts.onReady(it.g,f,false);}done();});}
-const FAR_D=GFX==="mid"?45:32;
+const FAR_D=GFX==="mid"?32:24;const HIDE_SMALL=GFX==="mid"?85:60,HIDE_MED=GFX==="mid"?150:110,SPRITE_D=GFX==="mid"?55:40;
 const _hqv=new THREE.Vector3();const HQ_MAX_ORIG=GFX==="high"?6:GFX==="mid"?2:1;   // 동시에 4K 원본으로 그릴 건물 수(가장 가까운 것부터)
 function hqTick(){const px=player.position.x,pz=player.position.z;const arr=[];
   for(const it of hqInstances){it.g.getWorldPosition(_hqv);const d=Math.hypot(_hqv.x-px,_hqv.z-pz)-it.r;
-    if(HYBRID&&it.A.far){if(!it.farD){const f=it.opts.fit||{},sz=Math.max(f.w||0,f.d||0,f.h||(it.A.h||2));it.farD=FAR_D*Math.min(1,Math.max(0.3,sz/10));}const L=d<it.farD?"mid":d>it.farD+8?"far":it.lvl;if(L!==it.lvl)hqShow(it,L);}
+    if(HYBRID&&it.A.far){if(!it.farD){const f=it.opts.fit||{},sz=Math.max(f.w||0,f.d||0,f.h||(it.A.h||2));it.farD=FAR_D*Math.min(1,Math.max(0.3,sz/10));}const L=d<it.farD?"mid":d>it.farD+8?"far":it.lvl;if(L!==it.lvl)hqShow(it,L);
+      // 안개 너머의 작은 물건은 아예 그리지 않음
+      const f2=it.opts.fit||{},sz2=Math.max(f2.w||0,f2.d||0,f2.h||(it.A.h||2));const hide=(sz2<4&&d>HIDE_SMALL)||(sz2<9&&d>HIDE_MED);if(it.g.visible===hide)it.g.visible=!hide;}
     if(it.A.lod)arr.push([d,it]);}
   arr.sort((a,b)=>a[0]-b[0]);let k=0;
   for(const [d,it] of arr){const rank=k;if(d<HQ_NEAR)k++;const allow=d<HQ_NEAR&&rank<HQ_MAX_ORIG;
@@ -534,6 +536,8 @@ function hqTick(){const px=player.position.x,pz=player.position.z;const arr=[];
       if(d>HQ_NEAR+HQ_FAR_MARGIN+40||rank>=HQ_MAX_ORIG+3){
         if(HYBRID){if(it.lodNode)restoreMats(it.lodNode);it.hiMats=null;}else{it.g.remove(it.origNode);it.origNode=null;if(it.lodNode)it.lodNode.visible=true;}
         hqRelease(it.A.orig);}}}}
+function spriteCull(){if(!HYBRID)return;const px=player.position.x,pz=player.position.z;if(!spriteCull.list||(spriteCull.n=(spriteCull.n||0)+1)%8===0){spriteCull.list=[];scene.traverse(o=>{if(o.isSprite)spriteCull.list.push(o);});}
+  spriteCull.list.forEach(o=>{o.getWorldPosition(_hqv);const far=Math.hypot(_hqv.x-px,_hqv.z-pz)>SPRITE_D;if(far)o.layers.set(1);else o.layers.set(0);});}
 function hqRelease(url){const c=hqCache[url];if(!c)return;c.used=Math.max(0,c.used-1);if(c.used>0||c.status!=="ready")return;
   c.scene.traverse(m=>{if(m.isMesh){m.geometry.dispose();(Array.isArray(m.material)?m.material:[m.material]).forEach(mt=>{if(!mt)return;for(const k in mt){if(mt[k]&&mt[k].isTexture)mt[k].dispose();}if(mt.userData.skinClone)mt.userData.skinClone.dispose();mt.dispose();});}});
   delete hqCache[url];WORLD.hqReleased=(WORLD.hqReleased||0)+1;}
@@ -661,7 +665,7 @@ function floatSign(txt,x,y,z,red){const sp=new THREE.Sprite(new THREE.SpriteMate
 const ground=new THREE.Object3D();
 const court=flatMesh(53,68,pbrMat("brown_mud_rocks_01",53/3.2,68/3.2,{ns:1.4}),0,0.012,12);
 mapItems.push({k:"r",x0:-27,x1:27,z0:-48,z1:-22,c:"#d2bd96"});
-function path(x,z,w,l,y){const m=flatMesh(w,l,pbrMat("cobblestone_large_01",w/2.4,l/2.4,{ns:1.6,disp:0.09}),x,(y||0)+0.05,z,4);mapItems.push({k:"r",x0:x-w/2,x1:x+w/2,z0:z-l/2,z1:z+l/2,c:"#a39d92"});}
+function path(x,z,w,l,y){const m=flatMesh(w,l,pbrMat("cobblestone_large_01",w/2.4,l/2.4,{ns:1.6,disp:0.09}),x,(y||0)+0.05,z,GFX==="high"?4:1.5);mapItems.push({k:"r",x0:x-w/2,x1:x+w/2,z0:z-l/2,z1:z+l/2,c:"#a39d92"});}
 path(0,57.5,3.4,23);path(0,20.6,3,50.4);path(0,-17,3,5.2);path(0,-29,2.6,8.2,TER_Y);
 
 /* 지붕 (처마가 휘어 오른 단면) */
@@ -1844,7 +1848,7 @@ const CINE={composer:null,ssao:null,bloom:null,grade:null,dust:null,ok:false};
       scene.traverse(o=>{if(o.isMesh&&o.material&&o.material.isMeshStandardMaterial){o.material.envMapIntensity=0.9;o.material.needsUpdate=true;}});},
     undefined,e=>{WORLD.hdriError=String(e&&e.message||e);});}
   // 공기 중 먼지·꽃가루 (플레이어 주변을 따라다님)
-  const N=GFX==="high"?1400:GFX==="mid"?600:300,pos=new Float32Array(N*3),seed=new Float32Array(N);
+  const N=GFX==="high"?1400:GFX==="mid"?260:150,pos=new Float32Array(N*3),seed=new Float32Array(N);
   for(let i=0;i<N;i++){pos[i*3]=(Math.random()-0.5)*60;pos[i*3+1]=Math.random()*14;pos[i*3+2]=(Math.random()-0.5)*60;seed[i]=Math.random()*100;}
   const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(pos,3));
   const sp=document.createElement("canvas");sp.width=sp.height=32;const c=sp.getContext("2d");const gr=c.createRadialGradient(16,16,0,16,16,16);gr.addColorStop(0,"rgba(255,236,200,1)");gr.addColorStop(1,"rgba(255,236,200,0)");c.fillStyle=gr;c.fillRect(0,0,32,32);
@@ -2334,7 +2338,7 @@ function loop(now){
   if((++frameN)%3===0)drawMini();
   updatePeers(dt);sendPresence(false);
   nameTag.position.set(player.position.x,player.position.y+(S.grade>=4?3.05:2.55),player.position.z);bubbleTick(performance.now());
-  cineTick(t,dt);if((frameN%15)===0){hqTick();hqForestTick();}charTick();cineRender();requestAnimationFrame(loop);
+  cineTick(t,dt);if((frameN%15)===0){hqTick();hqForestTick();spriteCull();}charTick();cineRender();requestAnimationFrame(loop);
 }
 camera.position.set(0,6,73);
 /* ================= 마무리: 글자판은 직접 만든 면으로, 기본 도형은 모두 걷어 내기 ================= */
