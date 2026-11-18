@@ -518,7 +518,7 @@ const FAR_D=GFX==="mid"?45:32;
 const _hqv=new THREE.Vector3();const HQ_MAX_ORIG=GFX==="high"?6:GFX==="mid"?2:1;   // 동시에 4K 원본으로 그릴 건물 수(가장 가까운 것부터)
 function hqTick(){const px=player.position.x,pz=player.position.z;const arr=[];
   for(const it of hqInstances){it.g.getWorldPosition(_hqv);const d=Math.hypot(_hqv.x-px,_hqv.z-pz)-it.r;
-    if(HYBRID&&it.A.far){const L=d<FAR_D?"mid":d>FAR_D+12?"far":it.lvl;if(L!==it.lvl)hqShow(it,L);}
+    if(HYBRID&&it.A.far){if(!it.farD){const f=it.opts.fit||{},sz=Math.max(f.w||0,f.d||0,f.h||(it.A.h||2));it.farD=FAR_D*Math.min(1,Math.max(0.3,sz/10));}const L=d<it.farD?"mid":d>it.farD+8?"far":it.lvl;if(L!==it.lvl)hqShow(it,L);}
     if(it.A.lod)arr.push([d,it]);}
   arr.sort((a,b)=>a[0]-b[0]);let k=0;
   for(const [d,it] of arr){const rank=k;if(d<HQ_NEAR)k++;const allow=d<HQ_NEAR&&rank<HQ_MAX_ORIG;
