@@ -432,7 +432,7 @@ const HYBRID=GFX!=="high";   // 내장그래픽·휴대폰: 형상은 가벼운 
 const WORLD={};
 /*ASSET-START*/const ASSET={hdri:"https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/4k/qwantani_dusk_2_puresky_4k.hdr",pbr:{forest:"forest_ground_04",yard:"brown_mud_rocks_01",paving:"cobblestone_large_01"}};/*ASSET-END*/
 const canvas=$("c");
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+const renderer=new THREE.WebGLRenderer({canvas,antialias:GFX==="high",powerPreference:"high-performance"});   // 내장그래픽: MSAA 끄고(픽셀 처리 부담↓) 해상도 자동 조절로 보완
 const PR_CAP=GFX==="high"?Math.min(devicePixelRatio,2):Math.min(devicePixelRatio,1);renderer.setPixelRatio(PR_CAP);renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();
@@ -473,7 +473,7 @@ function quadGeo(w,l,sx,sz){const g=new THREE.BufferGeometry(),pos=[],uv=[],idx=
 function flatMesh(w,l,mat,x,y,z,seg){const m=new THREE.Mesh(quadGeo(w,l,seg?Math.ceil(w*seg):1,seg?Math.ceil(l*seg):1),mat);m.position.set(x,y,z);m.receiveShadow=true;scene.add(m);return m;}
 /* ================= 고품질 모델 스트리밍: 가까이는 힉스필드 원본, 멀리는 가벼운 LOD ================= */
 // HQ[name] = {orig:원본 GLB(압축·축소 없음), lod:먼 거리용, fit:{w,d,h} 또는 h, ry:앞면 보정}
-const HQ=window.HQ_ASSETS||{};const HQ_NEAR=GFX==="high"?38:GFX==="mid"?30:20;const HQ_FAR_MARGIN=14;
+const HQ=window.HQ_ASSETS||{};const HQ_NEAR=GFX==="high"?38:GFX==="mid"?24:16;const HQ_FAR_MARGIN=14;
 const hqCache={};   // url -> {status, scene, waiters}
 const hqInstances=[];const EMPTY_GEO=new THREE.BufferGeometry();
 function hqLoad(url,cb){let c=hqCache[url];if(!c)c=hqCache[url]={status:"idle",scene:null,waiters:[],used:0};
@@ -514,8 +514,8 @@ function hqShow(it,lvl){it.lvl=lvl;const done=()=>{if(it.lvl!==lvl)return;for(co
   if(it.nodes[lvl]){done();return;}if(it["ld_"+lvl])return;it["ld_"+lvl]=1;
   hqLoad(lvl==="far"?it.A.far:(it.A.lod||it.A.orig),src=>{if(!src)return;const f=hqFit(src,it.A,it.opts);it.nodes[lvl]=f.node;f.node.visible=false;it.g.add(f.node);
     if(lvl==="mid"){it.lodNode=f.node;if(it.hiMats)applyMats(f.node,it.hiMats);if(it.opts.onReady)it.opts.onReady(it.g,f,false);}done();});}
-const FAR_D=GFX==="mid"?60:42;
-const _hqv=new THREE.Vector3();const HQ_MAX_ORIG=GFX==="high"?6:GFX==="mid"?4:2;   // 동시에 4K 원본으로 그릴 건물 수(가장 가까운 것부터)
+const FAR_D=GFX==="mid"?45:32;
+const _hqv=new THREE.Vector3();const HQ_MAX_ORIG=GFX==="high"?6:GFX==="mid"?2:1;   // 동시에 4K 원본으로 그릴 건물 수(가장 가까운 것부터)
 function hqTick(){const px=player.position.x,pz=player.position.z;const arr=[];
   for(const it of hqInstances){it.g.getWorldPosition(_hqv);const d=Math.hypot(_hqv.x-px,_hqv.z-pz)-it.r;
     if(HYBRID&&it.A.far){const L=d<FAR_D?"mid":d>FAR_D+12?"far":it.lvl;if(L!==it.lvl)hqShow(it,L);}
@@ -644,7 +644,7 @@ function charTick(){const px=player.position.x,pz=player.position.z;
   live.forEach(G=>{if(G===player){G.userData.setTier("hq");return;}const d=G.userData.dist,r=rank++;
     G.userData.setTier(GFX==="high"&&r<C.hq&&d<HQ_NEAR*0.6?"hq":(r<C.lod&&d<C.lodD)?"lod":"far");
     if(G.userData.body)G.userData.body.visible=d<C.hide;});}
-const _cwp=new THREE.Vector3();const CHAR_Q=GFX==="high"?{hq:3,lod:10,lodD:40,hide:1e9}:GFX==="mid"?{hq:0,lod:4,lodD:16,hide:85}:{hq:0,lod:2,lodD:10,hide:55};
+const _cwp=new THREE.Vector3();const CHAR_Q=GFX==="high"?{hq:3,lod:10,lodD:40,hide:1e9}:GFX==="mid"?{hq:0,lod:3,lodD:12,hide:60}:{hq:0,lod:2,lodD:9,hide:45};
 function addBeard(){}            // 원본 모델에는 수염을 따로 붙이지 않음
 
 function dirtTex(rep,base){return canvasTex(256,256,(x,w,hh)=>{x.fillStyle=base||"#a58f62";x.fillRect(0,0,w,hh);for(let i=0;i<2600;i++){x.fillStyle=Math.random()<.5?"rgba(110,84,52,.16)":"rgba(230,206,160,.18)";x.fillRect(Math.random()*w,Math.random()*hh,2+Math.random()*3,2+Math.random()*3);}},rep,rep);}
@@ -1642,7 +1642,7 @@ function distToPolyline(x,z,pts){let best=1e9;for(let i=0;i<pts.length-1;i++){co
 function inCore(x,z){return x>=CORE.x0&&x<=CORE.x1&&z>=CORE.z0&&z<=CORE.z1;}
 
 /* 품질: 휴대폰은 가볍게 */
-camera.far=GFX==="high"?1200:700;camera.updateProjectionMatrix();
+camera.far=GFX==="high"?1200:GFX==="mid"?460:360;camera.updateProjectionMatrix();
 
 
 /* 땅: 세상 전체를 덮는 높낮이 있는 지형 */
@@ -1685,7 +1685,7 @@ function placeModel(name,x,z,ry,scale,fallback,y){const A=HQ[name];return placeH
     if(FLATS.some(f=>Math.hypot(jx-f.x,jz-f.z)<f.r+6))continue;if([[-3,-138],[-100,-78],[-93,-73]].some(([px,pz])=>Math.hypot(jx-px,jz-pz)<13))continue;if(hash2(jx*1.3,jz*0.7)>(h>22?0.9:h>3?0.72:0.28))continue;
     const t={x:jx,y:h-0.1,z:jz,r:hash2(jx,jz)*6.28,s:0.8+hash2(jz,jx)*0.6};
     if(h>46)continue;(h>22?far:list).push(t);if(h<34)colliders.push({x:jx,z:jz,r:0.45*t.s});}
-  hqForest("pine",list.concat(far).map(t=>Object.assign({},t,{s:t.s*(0.9+hash2(t.z,t.x)*0.5)})),GFX==="high"?10:GFX==="mid"?6:3,{fit:{h:8},noShadow:true,maxDist:GFX==="high"?1e9:GFX==="mid"?150:110});
+  hqForest("pine",list.concat(far).map(t=>Object.assign({},t,{s:t.s*(0.9+hash2(t.z,t.x)*0.5)})),GFX==="high"?10:GFX==="mid"?6:3,{fit:{h:8},noShadow:true,maxDist:GFX==="high"?1e9:GFX==="mid"?120:90});
   // 세상 끝: 거대한 바위 절벽을 병풍처럼
   const ring=[];for(let i=0;i<46;i++){const a=i/46*Math.PI*2,rx=232,rz=236;const x=Math.cos(a)*rx*(1+hash2(i,1)*0.12),z=18+Math.sin(a)*rz*(1+hash2(1,i)*0.12);ring.push({x,y:Math.max(0,worldH(Math.max(WB.x0,Math.min(WB.x1,x)),Math.max(WB.z0,Math.min(WB.z1,z))))-6,z,r:-a+Math.PI/2+hash2(i,i)*0.8,s:1.4+hash2(i,7)*1.6});}
   hqForest("cliff",ring,2,{fit:{w:70,d:50,h:58},noShadow:true});
@@ -1830,12 +1830,12 @@ const CINE={composer:null,ssao:null,bloom:null,grade:null,dust:null,ok:false};
   renderer.physicallyCorrectLights=false;
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   // 해 질 녘 낮은 해: 긴 그림자
-  sun.color.set(0xffc58a);sun.intensity=2.4;const SM=GFX==="high"?4096:GFX==="mid"?2048:1024;sun.shadow.mapSize.set(SM,SM);if(GFX!=="high")renderer.shadowMap.type=THREE.PCFShadowMap;sun.shadow.bias=-0.00025;sun.shadow.normalBias=0.035;
-  const SC=GFX==="high"?46:GFX==="mid"?30:24;Object.assign(sun.shadow.camera,{left:-SC,right:SC,top:SC,bottom:-SC,near:1,far:180});sun.shadow.camera.updateProjectionMatrix();
+  sun.color.set(0xffc58a);sun.intensity=2.4;const SM=GFX==="high"?4096:GFX==="mid"?1536:1024;sun.shadow.mapSize.set(SM,SM);if(GFX!=="high")renderer.shadowMap.type=THREE.PCFShadowMap;sun.shadow.bias=-0.00025;sun.shadow.normalBias=0.035;
+  const SC=GFX==="high"?46:GFX==="mid"?26:20;Object.assign(sun.shadow.camera,{left:-SC,right:SC,top:SC,bottom:-SC,near:1,far:180});sun.shadow.camera.updateProjectionMatrix();
   scene.children.filter(o=>o.isHemisphereLight).forEach(h=>{h.intensity=0.25;h.color.set(0xbfd2ff);h.groundColor.set(0x3a2e22);});
   WORLD.sunOffset=new THREE.Vector3(-58,34,46);
   // 깊이감 있는 지수 안개 (원경 바위산 아래가 흐려짐)
-  scene.fog=new THREE.FogExp2(0x9aa3a6,GFX==="high"?0.0042:GFX==="mid"?0.0058:0.007);
+  scene.fog=new THREE.FogExp2(0x9aa3a6,GFX==="high"?0.0042:GFX==="mid"?0.0068:0.008);
   // HDRI 하늘 + 환경광 반사(IBL)
   const pm=new THREE.PMREMGenerator(renderer);pm.compileEquirectangularShader();
   if(THREE.RGBELoader&&ASSET.hdri){new THREE.RGBELoader().setDataType(THREE.UnsignedByteType).load(ASSET.hdri,tex=>{
@@ -1877,12 +1877,13 @@ function cineTick(t,dt){const D=CINE.dust;if(!D)return;const p=D.pos,px=player.p
     if(x-px>30)x-=60;if(x-px<-30)x+=60;if(z-pz>30)z-=60;if(z-pz<-30)z+=60;if(y<py-1)y+=14;if(y>py+14)y-=14;p[i*3]=x;p[i*3+1]=y;p[i*3+2]=z;}
   D.pt.geometry.attributes.position.needsUpdate=true;}
 renderer.info.autoReset=false;
-function cineRender(){renderer.info.reset();if(CINE.composer)CINE.composer.render();else{if(CINE.lite&&((cineRender.n=(cineRender.n||0)+1)%2===0))renderer.shadowMap.needsUpdate=true;renderer.render(scene,camera);}DRS.frame();}
+function cineRender(){renderer.info.reset();if(CINE.composer)CINE.composer.render();else{if(CINE.lite&&((cineRender.n=(cineRender.n||0)+1)%3===0))renderer.shadowMap.needsUpdate=true;renderer.render(scene,camera);}DRS.frame();}
 /* 화면 해상도 자동 조절: 초당 프레임이 떨어지면 해상도를 조금 낮추고, 여유가 생기면 다시 올림 */
-const DRS={scale:PR_CAP,min:PR_CAP*0.62,t0:performance.now(),n:0,fps:60,hist:[],
+const DRS={scale:GFX==="high"?PR_CAP:PR_CAP*0.85,min:PR_CAP*0.55,t0:performance.now(),n:0,fps:60,hist:[],
   frame(){this.n++;const now=performance.now(),el=now-this.t0;if(el<1500)return;this.fps=this.n*1000/el;this.hist.push(Math.round(this.fps));if(this.hist.length>20)this.hist.shift();this.n=0;this.t0=now;
-    if(document.hidden)return;let s=this.scale;if(this.fps<45&&s>this.min)s=Math.max(this.min,s*0.88);else if(this.fps>57&&s<PR_CAP)s=Math.min(PR_CAP,s*1.06);
+    if(document.hidden)return;let s=this.scale;if(document.visibilityState!=="visible")return;if(this.fps<48&&s>this.min)s=Math.max(this.min,s*0.9);else if(this.fps>57&&s<PR_CAP)s=Math.min(PR_CAP,s*1.05);
     if(Math.abs(s-this.scale)>0.01){this.scale=s;renderer.setPixelRatio(s);resize();}}};
+renderer.setPixelRatio(DRS.scale);
 
 
 /* ================= 소리 (Web Audio로 직접 만든 소리) ================= */
@@ -2338,7 +2339,7 @@ function loop(now){
 camera.position.set(0,6,73);
 /* ================= 마무리: 글자판은 직접 만든 면으로, 기본 도형은 모두 걷어 내기 ================= */
 function hqFinalize(){
-  if(WALL_LIST.length)hqForest("wall",WALL_LIST,GFX==="high"?4:GFX==="mid"?3:1,{fit:{w:0.95,d:2.6,h:3.0},chunk:24,maxDist:GFX==="high"?1e9:95});
+  if(WALL_LIST.length)hqForest("wall",WALL_LIST,GFX==="high"?4:GFX==="mid"?3:1,{fit:{w:0.95,d:2.6,h:3.0},chunk:24,maxDist:GFX==="high"?1e9:75});
   if(typeof EXAM_DESKS!=="undefined"&&EXAM_DESKS.length)hqForest("desk",EXAM_DESKS,GFX==="high"?4:2,{fit:{w:1.1,d:0.62,h:0.52},chunk:12});
   const toDecal=[];scene.traverse(o=>{if(!isPrim(o))return;if(/Plane|Circle/.test(o.geometry.type)){toDecal.push(o);return;}const mats=Array.isArray(o.material)?o.material:[o.material];if(mats.some(m=>m&&m.map))toDecal.push(o);});
   toDecal.forEach(o=>{const t=o.geometry.type,par=o.parent;if(!par)return;
