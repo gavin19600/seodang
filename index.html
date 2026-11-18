@@ -432,6 +432,7 @@ const HYBRID=GFX!=="high";   // 내장그래픽·휴대폰: 형상은 가벼운 
 const WORLD={};
 /*ASSET-START*/const ASSET={hdri:"https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/4k/qwantani_dusk_2_puresky_4k.hdr",pbr:{forest:"forest_ground_04",yard:"brown_mud_rocks_01",paving:"cobblestone_large_01"}};/*ASSET-END*/
 const canvas=$("c");
+canvas.addEventListener("webglcontextlost",e=>{e.preventDefault();setTimeout(()=>location.reload(),1500);});
 const renderer=new THREE.WebGLRenderer({canvas,antialias:GFX==="high",powerPreference:"high-performance"});   // 내장그래픽: MSAA 끄고(픽셀 처리 부담↓) 해상도 자동 조절로 보완
 const PR_CAP=GFX==="high"?Math.min(devicePixelRatio,2):Math.min(devicePixelRatio,1);renderer.setPixelRatio(PR_CAP);renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -490,7 +491,11 @@ function hqLoadQ(url,cb){const c=hqCache[url];if(c&&c.status==="ready"){cb(c.sce
 function hqPump(){if(hqBusy||!HQ_Q.length)return;const [url,cb]=HQ_Q.shift();hqBusy=true;
   hqLoad(url,src=>{try{cb(src);}catch(e){console.warn(e);}setTimeout(()=>{hqBusy=false;hqPump();},HYBRID?900:250);});}
 // 혼합 방식: 원본 GLB의 재질(4K 색·노멀·거칠기·금속 텍스처)만 가벼운 형상에 입힘 — 같은 UV이므로 그대로 맞음
-function origMats(src){if(src.userData.mats)return src.userData.mats;const a=[];src.traverse(m=>{if(m.isMesh){a.push(m.material);if(HYBRID){m.geometry.dispose();m.geometry=EMPTY_GEO;}}});src.userData.mats=a;return a;}
+function origMats(src,keep4k){if(src.userData.mats)return src.userData.mats;const a=[];src.traverse(m=>{if(m.isMesh){a.push(m.material);if(HYBRID){m.geometry.dispose();m.geometry=EMPTY_GEO;}}});
+  // 내장그래픽: 그래픽 메모리가 넘치면 텍스처가 검게 나오므로 건물 원본 텍스처는 2K로 줄여 올림(내 인물만 4K 그대로)
+  if(HYBRID&&!keep4k){const MAXT=GFX==="mid"?2048:1024;a.forEach(mt=>["map","normalMap","roughnessMap","metalnessMap","aoMap","emissiveMap"].forEach(k=>{const t=mt[k];if(!t||!t.image||t.userData_shrunk)return;const im=t.image,w=im.width||0,h=im.height||0;if(w<=MAXT&&h<=MAXT)return;
+    const sc=MAXT/Math.max(w,h),cv=document.createElement("canvas");cv.width=Math.round(w*sc);cv.height=Math.round(h*sc);cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height);if(im.close)try{im.close();}catch(e){}t.image=cv;t.userData_shrunk=1;t.needsUpdate=true;}));}
+  src.userData.mats=a;return a;}
 function applyMats(node,mats,skin){let i=0;node.traverse(m=>{if(!m.isMesh||m.isInstancedMesh)return;if(!m.userData.lodMat)m.userData.lodMat=m.material;let mt=mats[Math.min(i,mats.length-1)];
   if(skin){mt.userData.skinClone=mt.userData.skinClone||Object.assign(mt.clone(),{skinning:true});mt=mt.userData.skinClone;}m.material=mt;i++;});}
 function restoreMats(node){node.traverse(m=>{if(m.isMesh&&m.userData.lodMat)m.material=m.userData.lodMat;});}
@@ -638,7 +643,7 @@ function buildChar(gi){gi=Math.max(0,Math.min(4,gi|0));
     if(tier==="far")attach(A.far||A.lod||A.orig,"far");
     else if(tier==="lod")attach(A.lod||A.orig,"lod");
     else if(!HYBRID)attach(A.orig,"hq");
-    else attach(A.lod||A.orig,"hq",body=>{hqLoadQ(A.orig,o=>{if(!o||G.userData.want!=="hq"||G.userData.body!==body)return;if(!o.userData.charUsed){o.userData.charUsed=1;hqCache[A.orig].used++;}applyMats(body,origMats(o),true);});});};
+    else attach(A.lod||A.orig,"hq",body=>{hqLoadQ(A.orig,o=>{if(!o||G.userData.want!=="hq"||G.userData.body!==body)return;if(!o.userData.charUsed){o.userData.charUsed=1;hqCache[A.orig].used++;}applyMats(body,origMats(o,true),true);});});};
   G.userData.setTier("far");
   return G;}
 const CHARS=[];
