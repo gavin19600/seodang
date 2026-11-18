@@ -595,9 +595,15 @@ const CHAR_H=[1.5,1.72,1.74,1.76,1.74];
 const RIG_CACHE={};   // url -> {geoms:[{geometry,material}], H}
 function autoRig(src,H){
   // 모델을 키 H, 발바닥 y=0, 가운데 x=z=0 으로 맞춘 뒤 정점마다 뼈 가중치를 계산
-  src.updateMatrixWorld(true);const bb=new THREE.Box3().setFromObject(src),sz=bb.getSize(new THREE.Vector3()),ct=bb.getCenter(new THREE.Vector3());const k=H/sz.y;
+  src.updateMatrixWorld(true);
+  const deq=at=>{if(!at||at.array instanceof Float32Array)return at;const A=at.array,n=at.count,k=at.itemSize,o=new Float32Array(n*k);
+    const mx=at.normalized?(A instanceof Int8Array?127:A instanceof Uint8Array?255:A instanceof Int16Array?32767:A instanceof Uint16Array?65535:1):1;
+    for(let i=0;i<n;i++)for(let j=0;j<k;j++){const v=at.isInterleavedBufferAttribute?at.data.array[i*at.data.stride+at.offset+j]:A[i*k+j];o[i*k+j]=at.normalized?Math.max(v/mx,-1):v;}return new THREE.BufferAttribute(o,k);};
+  // 압축(양자화)된 정점을 실수로 풀고 월드 좌표로 옮긴 뒤 크기를 잼 → 키 H, 발바닥 y=0
+  const gs=[];src.traverse(m=>{if(!m.isMesh)return;const g=m.geometry.clone();["position","normal","uv"].forEach(nm=>{if(g.attributes[nm])g.setAttribute(nm,deq(g.attributes[nm]));});g.applyMatrix4(m.matrixWorld);gs.push([g,m]);});
+  const bb=new THREE.Box3();gs.forEach(([g])=>{g.computeBoundingBox();bb.union(g.boundingBox);});const sz=bb.getSize(new THREE.Vector3()),ct=bb.getCenter(new THREE.Vector3());const k=H/sz.y;
   const M0=new THREE.Matrix4().makeScale(k,k,k).multiply(new THREE.Matrix4().makeTranslation(-ct.x,-bb.min.y,-ct.z));
-  const out=[];src.traverse(m=>{if(!m.isMesh)return;const g=m.geometry.clone();g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(M0,m.matrixWorld));
+  const out=[];gs.forEach(([g,m])=>{g.applyMatrix4(M0);if(g.attributes.normal){const N=g.attributes.normal;for(let i=0;i<N.count;i++){const x=N.getX(i),y=N.getY(i),z=N.getZ(i),l=Math.hypot(x,y,z)||1;N.setXYZ(i,x/l,y/l,z/l);}}
     const p=g.attributes.position,n=p.count,si=new Uint16Array(n*4),sw=new Float32Array(n*4);
     const hipY=0.5*H,shY=0.8*H,shX=0.12*H,sst=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
     for(let i=0;i<n;i++){const x=p.getX(i),y=p.getY(i);
