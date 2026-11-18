@@ -2340,7 +2340,7 @@ camera.position.set(0,6,73);
 /* ================= 마무리: 글자판은 직접 만든 면으로, 기본 도형은 모두 걷어 내기 ================= */
 function hqFinalize(){
   if(WALL_LIST.length)hqForest("wall",WALL_LIST,GFX==="high"?4:GFX==="mid"?3:1,{fit:{w:0.95,d:2.6,h:3.0},chunk:24,maxDist:GFX==="high"?1e9:75});
-  if(typeof EXAM_DESKS!=="undefined"&&EXAM_DESKS.length)hqForest("desk",EXAM_DESKS,GFX==="high"?4:2,{fit:{w:1.1,d:0.62,h:0.52},chunk:12});
+  if(typeof EXAM_DESKS!=="undefined"&&EXAM_DESKS.length)hqForest("desk",EXAM_DESKS,GFX==="high"?4:2,{fit:{w:1.1,d:0.62,h:0.52},chunk:12,maxDist:GFX==="high"?1e9:55});
   const toDecal=[];scene.traverse(o=>{if(!isPrim(o))return;if(/Plane|Circle/.test(o.geometry.type)){toDecal.push(o);return;}const mats=Array.isArray(o.material)?o.material:[o.material];if(mats.some(m=>m&&m.map))toDecal.push(o);});
   toDecal.forEach(o=>{const t=o.geometry.type,par=o.parent;if(!par)return;
     if(/Plane|Circle/.test(t)){if(o.userData.kill)return;const g0=o.geometry,g=new THREE.BufferGeometry();Object.keys(g0.attributes).forEach(k=>g.setAttribute(k,g0.attributes[k].clone()));if(g0.index)g.setIndex(g0.index.clone());
